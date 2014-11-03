@@ -1,0 +1,222 @@
+<?php
+
+define('RESPONSIVE_IMAGE_STYLE_STEPS', 160);
+
+/**
+ * implementation of hook_theme()
+ */
+function responsive_image_styles_theme() {
+  return array(
+    'responsive_image' => array(
+      'variables' => array('style' => NULL, 'file' => array(), 'attributes' => array()),
+      'file' => 'responsive_image_styles.theme.inc'
+      )
+  );
+}
+
+function &responsive_image_styles_get_base_styles() {
+  static $cache = array();
+
+  if (count($cache) != 0)
+    return $cache;
+
+  $cache = module_invoke_all('responsive_default_styles');
+
+  foreach($cache as $ndx => $item) {
+    $cache[$ndx]['name'] = $ndx;
+    $cache[$ndx]['available_ratios'] = array();
+    foreach(array('ls', 'sq', 'po') as $ratio) {
+      if (isset($cache[$ndx][$ratio])) {
+        $val = isset($cache[$ndx][$ratio]['min_width']) ? $cache[$ndx][$ratio]['min_width'] : $cache[$ndx][$ratio]['min_height'];
+        $max_val = isset($cache[$ndx][$ratio]['min_width']) ? $cache[$ndx][$ratio]['width'] : $cache[$ndx][$ratio]['height'];
+        $step_width = isset($item['step_width']) ? $item['step_width'] : RESPONSIVE_IMAGE_STYLE_STEPS;
+        $val += 2 * $step_width;
+        $cache[$ndx][$ratio]['noscript'] = min($max_val, $val);
+        $cache[$ndx]['available_ratios'][] = $ratio;
+      }
+    }
+  }
+
+  return $cache;
+}
+
+
+function _responsive_image_styles_default_add_style($type, $width, $height) {
+
+  if ($type == 'min_scale') {
+    return array(
+      'effects' => array(
+        array(
+          'name' => 'focal_point_scale_and_crop',
+          'weight' => 0,
+          'data' => array(
+            'width' => $width,
+            'height' => $height,
+            'upscale' => FALSE
+          ),
+        )
+      )
+    );
+  }
+  if ($type == 'scale') {
+    return array(
+      'effects' => array(
+        array(
+          'name' => 'image_scale',
+          'weight' => 0,
+          'data' => array(
+            'width' => $width,
+            'height' => $height,
+            'upscale' => FALSE
+          ),
+        )
+      )
+    );
+  }
+}
+
+function _responsive_image_styles_compute_width_and_height($size, &$width, &$height, $s, $key) {
+
+  if (isset($size['width']) && isset($size['height'])) {
+
+    $aspect = $size['width'] / $size['height'];
+
+    if ($key == 'width') {
+      $width = $s;
+      $height = round($s / $aspect);
+    } else {
+      $height = $s;
+      $width = round($s * $aspect);
+    }
+  }
+  else if ($key == 'width') {
+    $width = $s;
+    $height = NULL;
+  }
+  else if ($key == 'width') {
+    $height = $s;
+    $width = NULL;
+  }
+}
+
+function responsive_image_styles_image_default_styles() {
+  $base = responsive_image_styles_get_base_styles();
+  $return = array();
+
+  foreach($base as $key => $item) {
+    foreach(array('ls', 'sq', 'po') as $ratio) {
+      if (!isset($item[$ratio]))
+        continue;
+      $style_name = $key.'_'.$ratio.'_'.$item['type'].'_';
+
+      $sizes = $item[$ratio];
+      $size_key = isset($sizes['min_width']) ? 'width' : 'height';
+
+      $min = $sizes['min_'.$size_key];
+      $max = $sizes[$size_key];
+
+      $s = $min;
+      $width = NULL;
+      $height = NULL;
+      $step_width = isset($item['step_width']) ? $item['step_width'] : RESPONSIVE_IMAGE_STYLE_STEPS;
+
+      while($s < $max) {
+        _responsive_image_styles_compute_width_and_height($sizes, $width, $height, $s, $size_key);
+
+        $return[$style_name . $s] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
+        $s += $step_width;
+      }
+      _responsive_image_styles_compute_width_and_height($sizes, $width, $height, $s, $size_key);
+      $return[$style_name . $max] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
+    }
+  }
+
+  return $return;
+}
+
+function _responsive_image_styles_get_style_name($style, $ratio, $size) {
+  return $style['name'].'_'.$ratio.'_'.$style['type'].'_'.$size;
+}
+
+
+
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function responsive_image_styles_field_formatter_info() {
+  return array(
+    'responsive_image_styles_image_formatter' => array( //Machine name of the formatter
+      'label' => t('Responsive image'),
+      'field types' => array('image'), //This will only be available to text fields
+      'settings'  => array( //Array of the settings we'll create
+        'preset' => 'fullscreen', //give a default value for when the form is first loaded
+      ),
+    ),
+  );
+}
+
+function responsive_image_styles_as_options() {
+  $data = responsive_image_styles_get_base_styles();
+  $preset_options = array();
+  foreach($data as $item) {
+    $preset_options[$item['name']] = $item['description'];
+  }
+  return $preset_options;
+}
+
+
+
+function responsive_image_styles_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+
+  //This gets the view_mode where our settings are stored
+  $display = $instance['display'][$view_mode];
+  //This gets the actual settings
+  $settings = $display['settings'];
+  //Initialize the element variable
+  $element = array();
+  //Add your select box
+  $element['preset'] = array(
+    '#type'           => 'select',                           // Use a select box widget
+    '#title'          => t('Preset'),                   // Widget label
+    '#description'    => t('Select the image preset'), // Helper text
+    '#default_value'  => $settings['preset'],              // Get the value if it's already been set
+    '#options'        => responsive_image_styles_as_options()
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function responsive_image_styles_field_formatter_settings_summary($field, $instance, $view_mode) {
+
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $summary = t('Use a responsive image with preset @preset', array(
+    '@preset'     => $settings['preset'],
+  )); // we use t() for translation and placeholders to guard against attacks
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function responsive_image_styles_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+
+  $element = array(); // Initialize the var
+
+  $settings = $display['settings']; // get the settings
+  $preset = $settings['preset']; // The Size setting selected in the settings form
+
+  foreach ($items as $delta => $item) {
+    $element[] = array(
+      '#theme' => 'responsive_image',
+      '#style' => $preset,
+      '#file' => $item
+    );
+  }
+
+  return $element;
+}

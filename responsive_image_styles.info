@@ -1,0 +1,7 @@
+name = responsive image styles
+description = "provide adaptive images via drupal image styles"
+package = Media
+core = 7.x
+dependencies[] = system (>7.10)
+dependencies[] = image
+dependencies[] = focal_point
