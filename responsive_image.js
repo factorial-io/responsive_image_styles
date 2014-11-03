@@ -2,13 +2,7 @@
 
 
   function isMobileDevice() {
-    if( navigator.userAgent.match(/Android/i)
-     || navigator.userAgent.match(/webOS/i)
-     || navigator.userAgent.match(/iPhone/i)
-     || navigator.userAgent.match(/iPad/i)
-     || navigator.userAgent.match(/iPod/i)
-     || navigator.userAgent.match(/BlackBerry/i)
-     || navigator.userAgent.match(/Windows Phone/i)
+    if( navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)
      )
     {
       return true;
@@ -46,6 +40,10 @@
     $(window).bind("resize", function() { this.update(); }.bind(this));
     $(window).bind("scroll", function() { this.update(); }.bind(this));
 
+    $(document).on('viewportUpdate', function(event) {
+      this.resetRecordedVisibiltyState();
+      this.update();
+    }.bind(this));
   };
 
   /**
@@ -63,6 +61,16 @@
       elem.data('inExtendedViewport', false);
       elem.data('inViewport', false);
     }
+  };
+
+  /**
+   * reset the recorded visibility state
+   */
+  ViewportSingleton.prototype.resetRecordedVisibiltyState = function() {
+    $.each(this.elements, function(ndx, data) {
+      data.inViewport = false;
+      data.inExtendedViewport = false;
+    });
   };
 
   /**
@@ -346,7 +354,7 @@
   };
 
   ResponsiveImage.prototype.getPresetUrl = function(ratio, size) {
-    var path = '/' + Drupal.settings.responsive_image_styles.file_path + '/styles/' + this.options.style + '_' + ratio + '_' + this.options.type + '_' + size + '/public/';
+    var path = Drupal.settings.basePath + Drupal.settings.responsive_image_styles.file_path + '/styles/' + this.options.style + '_' + ratio + '_' + this.options.type + '_' + size + '/public/';
     return this.options.src.replace('public://', path);
   };
 
