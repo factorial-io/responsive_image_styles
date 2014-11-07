@@ -167,7 +167,7 @@
 
 
 
-  var viewportSingleton = viewportSingleton || new ViewportSingleton({
+  var viewportSingleton = viewportSingleton || new ViewportSingleton({
     threshold: 2,
     disableOnMobile: true,
   });
