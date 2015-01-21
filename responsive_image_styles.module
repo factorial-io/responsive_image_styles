@@ -24,7 +24,6 @@ function responsive_image_styles_theme() {
 
 /**
  * Get all styles from hook implementations and cache them.
- * @Huber What is ('ls', 'sq', 'po')?
  */
 function &responsive_image_styles_get_base_styles() {
   static $cache = array();
@@ -171,14 +170,10 @@ function _responsive_image_styles_get_style_name($style, $ratio, $size) {
  */
 function responsive_image_styles_field_formatter_info() {
   return array(
-    // Machine name of the formatter.
     'responsive_image_styles_image_formatter' => array(
       'label' => t('Responsive image'),
-      // This will only be available to text fields.
       'field types' => array('image'),
-      // Array of the settings we'll create.
       'settings'  => array(
-        // Give a default value for when the form is first loaded.
         'preset' => 'fullscreen',
       ),
     ),
@@ -203,21 +198,13 @@ function responsive_image_styles_as_options() {
  */
 function responsive_image_styles_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
 
-  // This gets the view_mode where our settings are stored.
   $display = $instance['display'][$view_mode];
-  // This gets the actual settings.
   $settings = $display['settings'];
-  // Initialize the element variable.
   $element = array();
-  // Add your select box.
   $element['preset'] = array(
-    // Use a select box widget.
     '#type' => 'select',
-    // Widget label.
     '#title' => t('Preset'),
-    // Helper text.
     '#description' => t('Select the image preset'),
-    // Get the value if it's already been set.
     '#default_value' => $settings['preset'],
     '#options'        => responsive_image_styles_as_options(),
   );

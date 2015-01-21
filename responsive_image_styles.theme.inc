@@ -10,8 +10,14 @@
 function theme_responsive_image($vars) {
   module_load_include('inc', 'focal_point', 'focal_point.effects');
 
+  // Add js files.
   drupal_add_js(drupal_get_path('module', 'responsive_image_styles') . '/responsive_image.js');
-  drupal_add_js(array('responsive_image_styles' => array('file_path' => variable_get('file_public_path', 'sites/default/files'))), 'setting');
+  // Expose public file path to JS, no private files supported.
+  drupal_add_js(array(
+    'responsive_image_styles' => array(
+      'file_path' => variable_get('file_public_path', 'sites/default/files'),
+    ),
+  ), 'setting');
 
   $styles = responsive_image_styles_get_base_styles();
   $style = $vars['style'];
@@ -21,6 +27,7 @@ function theme_responsive_image($vars) {
     return '';
   }
 
+  // File width not available, so re-fetch.
   if (!isset($file['width'])) {
     $file = drupal_array_merge_deep($file, image_get_info($file['uri']));
   }
@@ -34,7 +41,14 @@ function theme_responsive_image($vars) {
   $noscript_style = _responsive_image_styles_get_style_name($style_data, $ratio, $style_data[$ratio]['noscript']);
   $noscript_file = $file;
 
-  $noscript_attrs = drupal_array_merge_deep(array('class' => array('image', 'image-' . $style)), $vars['attributes']);
+  $noscript_attrs = drupal_array_merge_deep(array(
+    'class' => array(
+      'image',
+      'image-' . $style,
+    ),
+  ),
+    $vars['attributes']
+  );
   unset($noscript_attrs['width']);
   unset($noscript_attrs['height']);
   unset($noscript_file['width']);
@@ -54,9 +68,10 @@ function theme_responsive_image($vars) {
     'src' => $file['uri'],
     'style' => $style,
     'type' => $style_data['type'],
-    'steps' => isset($style_data['step_width']) ? $style_data['step_width'] : RESPONSIVE_IMAGE_STYLE_STEPS,
+    'steps' => isset($style_data['step_width']) ? $style_data['step_width'] : RESPONSIVE_IMAGE_STYLES_STEPS,
     'ratios' => array(),
   );
+
   foreach ($style_data['available_ratios'] as $r) {
     $json_attributes['ratios'][$r] = array();
     if (isset($style_data[$r]['min_width'])) {
