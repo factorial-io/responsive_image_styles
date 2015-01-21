@@ -42,7 +42,7 @@ function &responsive_image_styles_get_base_styles() {
       if (isset($cache[$ndx][$ratio])) {
         $val = isset($cache[$ndx][$ratio]['min_width']) ? $cache[$ndx][$ratio]['min_width'] : $cache[$ndx][$ratio]['min_height'];
         $max_val = isset($cache[$ndx][$ratio]['min_width']) ? $cache[$ndx][$ratio]['width'] : $cache[$ndx][$ratio]['height'];
-        $step_width = isset($item['step_width']) ? $item['step_width'] : RESPONSIVE_IMAGES_STYLE_STEPS;
+        $step_width = isset($item['step_width']) ? $item['step_width'] : RESPONSIVE_IMAGE_STYLES_STEPS;
         $val += 2 * $step_width;
         $cache[$ndx][$ratio]['noscript'] = min($max_val, $val);
         $cache[$ndx]['available_ratios'][] = $ratio;
