@@ -11,7 +11,11 @@ function theme_responsive_image($vars) {
   module_load_include('inc', 'focal_point', 'focal_point.effects');
 
   // Add js files.
-  drupal_add_js(drupal_get_path('module', 'responsive_image_styles') . '/responsive_image.js');
+  $path = drupal_get_path('module', 'responsive_image_styles') . '/js/';
+  // drupal_add_js($path . 'viewport.js', array('weight' => 1));
+  // drupal_add_js($path . 'responsive_image_class.js', array('weight' => 2));
+  drupal_add_js($path . 'responsive_image_styles.js', array('weight' => 3));
+
   // Expose public file path to JS, no private files supported.
   drupal_add_js(array(
     'responsive_image_styles' => array(

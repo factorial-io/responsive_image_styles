@@ -1,29 +1,31 @@
 (function ($) {
 
+/**
+ * Base Class handling viewport image loading.
+ */
 
-  function isMobileDevice() {
-    if( navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)
-     )
-    {
-      return true;
-    }
-   else {
-      return false;
-    }
+/**
+ *  Helper to check for mobile device.
+ */
+function isMobileDevice() {
+  if( navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)
+   )
+  {
+    return true;
   }
+ else {
+    return false;
+  }
+}
 
-
-  /**
-   * Base Class handling responsive images via drupal image styles
-   * TODO:
-   */
 
 
   /**
    * ViewportSingleton, checks a list of elements if they are in the viewport or not
    * will call a callback, if an element enters the viewport the first time
    */
-  var ViewportSingleton = function(options) {
+  //var ViewportSingleton = function(options) {
+  ViewportSingleton = function(options) {
     this.options = options;
     this.elements = [];
     this.elementsInViewport = [];
@@ -92,9 +94,6 @@
     var t = $window.scrollTop();
     var r = l + $window.width();
     var b = t + $window.height();
-
-
-    // console.log(l,t,r,b,tx,ty);
 
     $.each(this.elements, function(ndx, data) {
 
@@ -165,12 +164,11 @@
     return (cached_result ===  true);
   };
 
-
-
   var viewportSingleton = viewportSingleton || new ViewportSingleton({
     threshold: 2,
     disableOnMobile: true,
   });
+
 
   /**
    * responsive image class. Will load a new src on size changes
@@ -420,7 +418,6 @@
       $img.data('mri',mri);
     },
 
-
     attach: function (context, settings) {
 
       $('img[data-responsive-image]:not(.responsive-image-handled)', context).addClass('responsive-image-handled').each(function(ndx, elem) {
@@ -428,8 +425,4 @@
       }.bind(this));
     }
   };
-
 })(jQuery);
-
-
-
