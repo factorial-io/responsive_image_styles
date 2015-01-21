@@ -172,7 +172,7 @@ function responsive_image_styles_field_formatter_info() {
   return array(
     'responsive_image_styles_image_formatter' => array(
       'label' => t('Responsive image'),
-      'field types' => array('image'),
+      'field types' => array('image', 'video_embed_field'),
       'settings'  => array(
         'preset' => 'fullscreen',
       ),
@@ -231,11 +231,15 @@ function responsive_image_styles_field_formatter_settings_summary($field, $insta
 function responsive_image_styles_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
 
   $element = array();
-
   $settings = $display['settings'];
   $preset = $settings['preset'];
 
   foreach ($items as $delta => $item) {
+    if ($field['type'] == 'video_embed_field') {
+      $file = file_load_multiple(array(), array('uri' => $item['thumbnail_path']));
+      $item = reset($file);
+    }
+
     $element[] = array(
       '#theme' => 'responsive_image',
       '#style' => $preset,

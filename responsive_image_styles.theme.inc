@@ -9,7 +9,6 @@
  */
 function theme_responsive_image($vars) {
   module_load_include('inc', 'focal_point', 'focal_point.effects');
-
   // Add js files.
   $path = drupal_get_path('module', 'responsive_image_styles') . '/js/';
   // drupal_add_js($path . 'viewport.js', array('weight' => 1));
@@ -93,6 +92,9 @@ function theme_responsive_image($vars) {
         'height' => $style_data[$r]['height'],
       );
       $focal_point = focal_point_parse($file['focal_point']);
+      if (empty($focal_point)) {
+        $focal_point = FOCAL_POINT_DEFAULT;
+      }
 
       $crop_data['x'] = focal_point_effect_calculate_anchor($file['width'], $crop_data['width'], $focal_point['x-offset']);
       $crop_data['y'] = focal_point_effect_calculate_anchor($file['height'], $crop_data['height'], $focal_point['y-offset']);
