@@ -23,6 +23,17 @@ function responsive_image_styles_theme() {
 }
 
 /**
+ * Implements hook_page_build().
+ *
+ * Add css to the backend to fixing padding or margin on focalpoint images.
+ */
+function responsive_image_styles_page_build(&$page) {
+  if (path_is_admin(current_path())) {
+    ctools_add_css('responsive_image_styles_backend', 'responsive_image_styles');
+  }
+}
+
+/**
  * Get all styles from hook implementations and cache them.
  */
 function &responsive_image_styles_get_base_styles() {

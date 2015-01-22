@@ -14,6 +14,7 @@ function theme_responsive_image($vars) {
   // drupal_add_js($path . 'viewport.js', array('weight' => 1));
   // drupal_add_js($path . 'responsive_image_class.js', array('weight' => 2));
   drupal_add_js($path . 'responsive_image_styles.js', array('weight' => 3));
+  ctools_add_css('responsive_image_styles', 'responsive_image_styles');
 
   // Expose public file path to JS, no private files supported.
   drupal_add_js(array(
