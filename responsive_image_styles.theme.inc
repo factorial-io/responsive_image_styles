@@ -8,7 +8,7 @@
  * Theming function for the responsive image element.
  */
 function theme_responsive_image($vars) {
-  static $css_classes_added = FALSE;
+  static $css_classes = FALSE;
 
   module_load_include('inc', 'focal_point', 'focal_point.effects');
   // Add js files.
@@ -19,15 +19,15 @@ function theme_responsive_image($vars) {
 
   ctools_add_css('responsive_image_styles', 'responsive_image_styles');
 
-  if (!$css_classes_added) {
+  if (!$css_classes) {
+    $css_classes = responsive_images_get_css_class_names();
     // Expose public file path to JS, no private files supported.
     drupal_add_js(array(
       'responsive_image_styles' => array(
         'file_path' => variable_get('file_public_path', 'sites/default/files'),
-        'classNames' => responsive_images_get_css_class_names(),
+        'classNames' => $css_classes,
       ),
     ), 'setting');
-    $css_classes_added = TRUE;
   }
 
   $styles = responsive_image_styles_get_base_styles();
@@ -54,8 +54,7 @@ function theme_responsive_image($vars) {
 
   $noscript_attrs = drupal_array_merge_deep(array(
     'class' => array(
-      'image',
-      'image-' . $style,
+      $css_classes['IMAGE']
     ),
   ),
     $vars['attributes']
@@ -118,6 +117,7 @@ function theme_responsive_image($vars) {
   $attributes = array(
     'alt' => isset($file['alt']) ? $file['alt'] : '',
     'src' => 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+    'class'=> $css_classes['IMAGE'],
   );
 
   if (isset($file['title'])) {
@@ -139,7 +139,7 @@ function theme_responsive_image($vars) {
   $attributes = drupal_array_merge_deep($attributes, $vars['attributes']);
   $output .= '<img ' . drupal_attributes($attributes) . '/>';
   if ($style_data['cover']) {
-    $output = '<div class="focal-point-wrapper">' . $output . '</div>';
+    $output = '<div class="' . $css_classes['WRAPPER'] . '">' . $output . '</div>';
   }
   return $output;
 }
