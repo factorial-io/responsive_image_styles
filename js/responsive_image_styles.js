@@ -30,6 +30,8 @@
       $('img[data-responsive-image]:not(.'+isHandledClass+')', context).addClass(isHandledClass).each(function(ndx, elem) {
         this.attachImage(elem);
       }.bind(this));
+
+      Drupal.viewportSingleton.update();
     }
   };
 })(jQuery);
