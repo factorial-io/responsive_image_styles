@@ -67,12 +67,13 @@ function &responsive_image_styles_get_base_styles() {
  * Add default styles.
  */
 function _responsive_image_styles_default_add_style($type, $width, $height) {
+  $min_scale_effect = variable_get('responsive_images_min_scale_effect', 'focal_point_scale_and_crop');
 
   if ($type == 'min_scale') {
     return array(
       'effects' => array(
         array(
-          'name' => 'focal_point_scale_and_crop',
+          'name' => $min_scale_effect,
           'weight' => 0,
           'data' => array(
             'width' => $width,
@@ -168,6 +169,34 @@ function responsive_image_styles_image_default_styles() {
 }
 
 /**
+ * Get all used css class names.
+ *
+ * You can override all or partial class names via the
+ * drupal variable 'responsive_images_css_class_names'.
+ */
+function responsive_images_get_css_class_names() {
+  static $css_class_names = NULL;
+  if (is_null($css_class_names)) {
+
+    $default = array(
+      'WRAPPER' => 'focal-point-wrapper',
+      'IMAGE' => 'responsive-image',
+      'STATE' => array(
+        'IS_LOADING' => 'responsive-image--loading-state',
+        'IS_LOADED' => 'responsive-image--loaded-state',
+        'IS_IN_VIEWPORT' => 'responsive-image--in-viewport-state',
+        'IS_INITIAL_LOADING' => 'responsive-image--initial-loading-state',
+        'ELEMENT_IS_HANDLED' => 'responsive-image--handled-state'
+      ),
+    );
+    $css_class_names = drupal_array_merge_deep($default, variable_get('responsive_images_css_class_names', array()));
+  }
+
+  return $css_class_names;
+}
+
+
+/**
  * Helper to get style name.
  */
 function _responsive_image_styles_get_style_name($style, $ratio, $size) {
@@ -245,7 +274,7 @@ function responsive_image_styles_field_formatter_view($entity_type, $entity, $fi
   $settings = $display['settings'];
   $preset = $settings['preset'];
 
-  foreach ($items as $delta => $item) {
+  foreach ($items as $item) {
     if ($field['type'] == 'video_embed_field') {
       $file = file_load_multiple(array(), array('uri' => $item['thumbnail_path']));
       $item = reset($file);

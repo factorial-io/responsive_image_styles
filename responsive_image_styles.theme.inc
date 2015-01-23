@@ -8,6 +8,8 @@
  * Theming function for the responsive image element.
  */
 function theme_responsive_image($vars) {
+  static $css_classes_added = FALSE;
+
   module_load_include('inc', 'focal_point', 'focal_point.effects');
   // Add js files.
   $path = drupal_get_path('module', 'responsive_image_styles') . '/js/';
@@ -17,12 +19,16 @@ function theme_responsive_image($vars) {
 
   ctools_add_css('responsive_image_styles', 'responsive_image_styles');
 
-  // Expose public file path to JS, no private files supported.
-  drupal_add_js(array(
-    'responsive_image_styles' => array(
-      'file_path' => variable_get('file_public_path', 'sites/default/files'),
-    ),
-  ), 'setting');
+  if (!$css_classes_added) {
+    // Expose public file path to JS, no private files supported.
+    drupal_add_js(array(
+      'responsive_image_styles' => array(
+        'file_path' => variable_get('file_public_path', 'sites/default/files'),
+        'classNames' => responsive_images_get_css_class_names(),
+      ),
+    ), 'setting');
+    $css_classes_added = TRUE;
+  }
 
   $styles = responsive_image_styles_get_base_styles();
   $style = $vars['style'];
