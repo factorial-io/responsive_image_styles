@@ -185,10 +185,10 @@
         if (off) {
           that.elem.removeClass(off);
         }
-        console.log(key, value, on, off);
+        // console.log(key, value, on, off);
       }
       else {
-        console.log("unknown state: ", key);
+        // console.log("unknown state: ", key);
       }
     });
   };
