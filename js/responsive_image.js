@@ -4,20 +4,35 @@
 
 (function ($) {
 
+  RI_CLASSNAMES = {
+    WRAPPER: 'focal-point-wrapper',
+    IMAGE: 'responsive-image',
+    STATE: {
+      IS_LOADING: 'responsive-image--loading-state',
+      IS_LOADED: 'responsive-image--loaded-state',
+      IS_IN_VIEWPORT: 'responsive-image--in-viewport-state',
+      IS_INITIAL_LOADING: 'responsive-image--initial-loading-state',
+      ELEMENT_IS_HANDLED: 'responsive-image--handled-state'
+    },
+  };
+
   /**
    * responsive image class. Will load a new src on size changes
    */
-  var ResponsiveImage = function(elem, options) {
+  ResponsiveImage = function(elem, options) {
     this.elem = elem;
-    this.elem.addClass('responsive-image');
+    this.classNames = options.classNames;
+    this.elem.addClass(this.classNames.IMAGE);
     this.options = options;
+
     this.devicePixelRatio = this.getDevicePixelRatio();
-    this.mayApplyFocalPoint = this.elem.parent().hasClass('focal-point-wrapper');
+    this.mayApplyFocalPoint = this.elem.parent().hasClass(this.classNames.WRAPPER);
     this.firstImage = true;
     this.imageWidth = this.imageHeight = 1;
     if (this.options)
       this.init();
   };
+
 
   ResponsiveImage.prototype.debounce = function(callback, wait) {
     var timeout, result;
@@ -46,7 +61,7 @@
 
     // add elem to viewportManager
     var parent_elem = this.elem.parent();
-    viewportSingleton.add( parent_elem, function() { this.compute(); }.bind(this), function(inViewport) { this.handleInViewport(inViewport); }.bind(this));
+    Drupal.viewportSingleton.add( parent_elem, function() { this.compute(); }.bind(this), function(inViewport) { this.handleInViewport(inViewport); }.bind(this));
 
 
     // bind to resize
@@ -57,12 +72,7 @@
   };
 
   ResponsiveImage.prototype.handleInViewport = function(elemInViewport) {
-
-    if (elemInViewport) {
-      this.elem.addClass('responsive-image--in-viewport-state');
-    } else {
-      this.elem.removeClass('responsive-image--in-viewport-state');
-    }
+    this.setState({ isInViewport: elemInViewport});
   };
 
   ResponsiveImage.prototype.handleResize = function() {
@@ -100,7 +110,7 @@
 
     var parent_elem = this.elem.parent();
 
-    if (!viewportSingleton.inExtendedViewport(parent_elem))
+    if (!Drupal.viewportSingleton.inExtendedViewport(parent_elem))
       return;
 
     /*
@@ -146,15 +156,47 @@
     this.requestNewImage(new_src);
   };
 
+  ResponsiveImage.prototype.setState = function(obj) {
+    var on, off;
+    var that = this;
+    var states = {
+      isLoading: {
+        on: (this.firstImage) ? this.classNames.STATE.IS_INITIAL_LOADING : this.classNames.STATE.IS_LOADING,
+        off: this.classNames.STATE.IS_LOADED
+      },
+      isLoaded: {
+        on: this.classNames.STATE.IS_LOADED,
+        off: [this.classNames.STATE.IS_INITIAL_LOADING,this.classNames.STATE.ISLOADING].join(' ')
+      },
+      isInViewport: {
+        on: this.classNames.STATE.IS_IN_VIEWPORT,
+        off: false
+      }
+    };
+
+    jQuery.each(obj, function(key, value) {
+      if (key in states) {
+        var state = states[key];
+        var on = value ? state.on : state.off;
+        var off = value ? state.off : state.on;
+        if (on) {
+          that.elem.addClass(on);
+        }
+        if (off) {
+          that.elem.removeClass(off);
+        }
+        console.log(key, value, on, off);
+      }
+      else {
+        console.log("unknown state: ", key);
+      }
+    });
+  };
+
   ResponsiveImage.prototype.requestNewImage = function(new_src) {
     var current_src = this.elem.attr('src');
     if(new_src != current_src) {
-      if (this.firstImage) {
-        this.elem.addClass('responsive-image--initial-loading-state').removeClass('responsive-image--loaded-state');
-      }
-      else {
-        this.elem.addClass('responsive-image--loading-state').removeClass('responsive-image--loaded-state');
-      }
+      this.setState({isLoading: true});
 
       if(this.temp_image) {
         // console.log("removing prev temp image");
@@ -174,8 +216,7 @@
         });
 
         this.firstImage = false;
-
-        this.elem.removeClass('responsive-image--loading-state').removeClass('responsive-image--initial-loading-state').addClass('responsive-image--loaded-state');
+        this.setState({isLoaded: true});
         this.applyFocalPoint();
 
 

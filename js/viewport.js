@@ -21,11 +21,17 @@ function isMobileDevice() {
 
   /**
    * ViewportSingleton, checks a list of elements if they are in the viewport or not
-   * will call a callback, if an element enters the viewport the first time
+   * will call a callback, if an element enters the viewport or leave it.
    */
   //var ViewportSingleton = function(options) {
   ViewportSingleton = function(options) {
-    this.options = options;
+    this.options = {
+      threshold: 2,
+      disableOnMobile: true,
+    };
+
+    jQuery.extend(this.options, options);
+
     this.elements = [];
     this.elementsInViewport = [];
     this.init();
@@ -163,9 +169,19 @@ function isMobileDevice() {
     return (cached_result ===  true);
   };
 
-  var viewportSingleton = viewportSingleton || new ViewportSingleton({
-    threshold: 2,
-    disableOnMobile: true,
-  });
+  ViewportSingleton.prototype.getCSSName = function(key) {
+    var that = this;
+    if (key instanceof Array) {
+      var result = [];
+      jQuery.each(key, function(index, elem) {
+        result.push(that.getCSSName(elem));
+      });
+      return result.join(' ');
+    }
+    else {
+      return this.options.cssClasses[key];
+    }
+  };
+
 
 })(jQuery);

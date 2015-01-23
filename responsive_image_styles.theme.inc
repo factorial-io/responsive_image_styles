@@ -11,9 +11,10 @@ function theme_responsive_image($vars) {
   module_load_include('inc', 'focal_point', 'focal_point.effects');
   // Add js files.
   $path = drupal_get_path('module', 'responsive_image_styles') . '/js/';
-  // drupal_add_js($path . 'viewport.js', array('weight' => 1));
-  // drupal_add_js($path . 'responsive_image_class.js', array('weight' => 2));
+  drupal_add_js($path . 'viewport.js', array('weight' => 1));
+  drupal_add_js($path . 'responsive_image.js', array('weight' => 2));
   drupal_add_js($path . 'responsive_image_styles.js', array('weight' => 3));
+
   ctools_add_css('responsive_image_styles', 'responsive_image_styles');
 
   // Expose public file path to JS, no private files supported.
@@ -110,11 +111,6 @@ function theme_responsive_image($vars) {
 
   $attributes = array(
     'alt' => isset($file['alt']) ? $file['alt'] : '',
-    'class' => array(
-      'image', 'image-' . $style,
-      'responsive-image',
-      'responsive-image--initial-loading-state',
-    ),
     'src' => 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
   );
 
@@ -125,8 +121,6 @@ function theme_responsive_image($vars) {
   if (isset($file['focal_point'])) {
     $fp = focal_point_parse($file['focal_point']);
     $json_attributes['focalPoint'] = array('x' => $fp['x-offset'], 'y' => $fp['y-offset']);
-    // We need scaled size and focal-point offset.
-    $attributes['class'][] = 'has-focal-point';
   }
   $attributes['data-responsive-image'] = json_encode($json_attributes);
 
