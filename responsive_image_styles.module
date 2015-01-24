@@ -130,11 +130,14 @@ function _responsive_image_styles_compute_width_and_height($size, &$width, &$hei
 }
 
 /**
- * Some default styles.
+ * Iterate through all ratios and steps and call $callback.
+ *
+ * @param function $callback
+ *   The function to call for every step.
  */
-function responsive_image_styles_image_default_styles() {
+function responsive_image_styles_iterate_steps_and_call($callback) {
+
   $base = responsive_image_styles_get_base_styles();
-  $return = array();
 
   foreach ($base as $key => $item) {
     foreach (array('ls', 'sq', 'po') as $ratio) {
@@ -152,21 +155,35 @@ function responsive_image_styles_image_default_styles() {
         $max = $scale * $sizes[$size_key];
 
         $s = $min;
-        $width = NULL;
-        $height = NULL;
+
         $step_width = isset($item['step_width']) ? $item['step_width'] : RESPONSIVE_IMAGE_STYLES_STEPS;
 
         while ($s < $max) {
-          _responsive_image_styles_compute_width_and_height($sizes, $width, $height, $s, $size_key);
 
-          $return[$style_name . $s] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
+          $callback($style_name, $ratio, $s, $size_key, $item);
           $s += $scale * $step_width;
         }
-        _responsive_image_styles_compute_width_and_height($sizes, $width, $height, $s, $size_key);
-        $return[$style_name . $max] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
+        $callback($style_name, $ratio, $max, $size_key, $item);
       }
     }
   }
+}
+
+/**
+ * Implementation of hook_image_default_styles().
+ */
+function responsive_image_styles_image_default_styles() {
+  $return = array();
+
+  $callback = function($style_name, $ratio, $s, $size_key, $item) use (&$return) {
+    $width = NULL;
+    $height = NULL;
+    _responsive_image_styles_compute_width_and_height($item[$ratio], $width, $height, $s, $size_key);
+
+    $return[$style_name . $s] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
+  };
+
+  responsive_image_styles_iterate_steps_and_call($callback);
 
   return $return;
 }
