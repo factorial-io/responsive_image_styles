@@ -51,7 +51,7 @@
     var ratio = 1;
 
     if (typeof window.devicePixelRatio !== 'undefined') {
-      ratio = window.devicePixelRatio;
+      ratio = window.devicePixelRatio >= 1.5 ? 2 : 1;
     }
     return ratio;
   };
@@ -146,13 +146,14 @@
 
     var min = range['min'+range_key];
     var max = range['max'+range_key];
-    var current = cs[size_key] * this.devicePixelRatio;
+    var current = cs[size_key];
+
     current = Math.round((current-min) / this.options.steps) * this.options.steps + min;
     current = Math.min(Math.max(current, min), max);
 
     //console.log(cs.width,cs.height,current, min, max, desired_ratio);
 
-    var new_src = this.getPresetUrl(desired_ratio, current);
+    var new_src = this.getPresetUrl(desired_ratio, current * this.devicePixelRatio);
     this.requestNewImage(new_src);
   };
 

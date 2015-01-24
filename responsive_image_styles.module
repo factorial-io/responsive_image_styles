@@ -146,22 +146,25 @@ function responsive_image_styles_image_default_styles() {
       $sizes = $item[$ratio];
       $size_key = isset($sizes['min_width']) ? 'width' : 'height';
 
-      $min = $sizes['min_' . $size_key];
-      $max = $sizes[$size_key];
+      foreach (array(1.0, 2.0) as $scale) {
 
-      $s = $min;
-      $width = NULL;
-      $height = NULL;
-      $step_width = isset($item['step_width']) ? $item['step_width'] : RESPONSIVE_IMAGE_STYLES_STEPS;
+        $min = $scale * $sizes['min_' . $size_key];
+        $max = $scale * $sizes[$size_key];
 
-      while ($s < $max) {
+        $s = $min;
+        $width = NULL;
+        $height = NULL;
+        $step_width = isset($item['step_width']) ? $item['step_width'] : RESPONSIVE_IMAGE_STYLES_STEPS;
+
+        while ($s < $max) {
+          _responsive_image_styles_compute_width_and_height($sizes, $width, $height, $s, $size_key);
+
+          $return[$style_name . $s] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
+          $s += $scale * $step_width;
+        }
         _responsive_image_styles_compute_width_and_height($sizes, $width, $height, $s, $size_key);
-
-        $return[$style_name . $s] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
-        $s += $step_width;
+        $return[$style_name . $max] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
       }
-      _responsive_image_styles_compute_width_and_height($sizes, $width, $height, $s, $size_key);
-      $return[$style_name . $max] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
     }
   }
 
@@ -257,10 +260,13 @@ function responsive_image_styles_field_formatter_settings_form($field, $instance
  */
 function responsive_image_styles_field_formatter_settings_summary($field, $instance, $view_mode) {
 
+  $styles = responsive_image_styles_get_base_styles();
+
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
-  $summary = t('Use a responsive image with preset @preset', array(
-    '@preset'     => $settings['preset'],
+  $summary = t('Use a responsive image with preset @preset (@machine_name)', array(
+    '@machine_name'     => $settings['preset'],
+    '@preset' => $styles[$settings['preset']]['description']
   ));
   return $summary;
 }
