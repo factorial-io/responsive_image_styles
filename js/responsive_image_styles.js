@@ -31,6 +31,7 @@
         this.attachImage(elem);
       }.bind(this));
 
+      // Check viewport.
       Drupal.viewportSingleton.update();
     }
   };
