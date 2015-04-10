@@ -3,29 +3,37 @@
 define('RESPONSIVE_IMAGE_STYLE_STEPS', 160);
 
 /**
- * implementation of hook_theme()
+ * Implementation of hook_theme().
  */
 function responsive_image_styles_theme() {
   return array(
     'responsive_image' => array(
-      'variables' => array('style' => NULL, 'file' => array(), 'attributes' => array()),
+      'variables' => array(
+        'style' => NULL,
+        'file' => array(),
+        'attributes' => array()
+      ),
       'file' => 'responsive_image_styles.theme.inc'
-      )
+      ),
+    'responsive_image_styles_scale_min_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
   );
 }
 
 function &responsive_image_styles_get_base_styles() {
   static $cache = array();
 
-  if (count($cache) != 0)
+  if (count($cache) != 0) {
     return $cache;
+  }
 
   $cache = module_invoke_all('responsive_default_styles');
 
-  foreach($cache as $ndx => $item) {
+  foreach ($cache as $ndx => $item) {
     $cache[$ndx]['name'] = $ndx;
     $cache[$ndx]['available_ratios'] = array();
-    foreach(array('ls', 'sq', 'po') as $ratio) {
+    foreach (array('ls', 'sq', 'po') as $ratio) {
       if (isset($cache[$ndx][$ratio])) {
         $val = isset($cache[$ndx][$ratio]['min_width']) ? $cache[$ndx][$ratio]['min_width'] : $cache[$ndx][$ratio]['min_height'];
         $max_val = isset($cache[$ndx][$ratio]['min_width']) ? $cache[$ndx][$ratio]['width'] : $cache[$ndx][$ratio]['height'];
@@ -41,6 +49,9 @@ function &responsive_image_styles_get_base_styles() {
 }
 
 
+/**
+ * get effect for given type
+ */
 function _responsive_image_styles_default_add_style($type, $width, $height) {
 
   if ($type == 'min_scale') {
@@ -48,6 +59,21 @@ function _responsive_image_styles_default_add_style($type, $width, $height) {
       'effects' => array(
         array(
           'name' => 'focal_point_scale_and_crop',
+          'weight' => 0,
+          'data' => array(
+            'width' => $width,
+            'height' => $height,
+            'upscale' => FALSE
+          ),
+        )
+      )
+    );
+  }
+  if ($type == 'min_scale_no_crop') {
+    return array(
+      'effects' => array(
+        array(
+          'name' => 'responsive_image_style_min_scale_effect',
           'weight' => 0,
           'data' => array(
             'width' => $width,
@@ -75,6 +101,9 @@ function _responsive_image_styles_default_add_style($type, $width, $height) {
   }
 }
 
+/**
+ * Compute width and height
+ */
 function _responsive_image_styles_compute_width_and_height($size, &$width, &$height, $s, $key) {
 
   if (isset($size['width']) && isset($size['height'])) {
@@ -84,35 +113,40 @@ function _responsive_image_styles_compute_width_and_height($size, &$width, &$hei
     if ($key == 'width') {
       $width = $s;
       $height = round($s / $aspect);
-    } else {
+    }
+    else {
       $height = $s;
       $width = round($s * $aspect);
     }
   }
-  else if ($key == 'width') {
+  elseif ($key == 'width') {
     $width = $s;
     $height = NULL;
   }
-  else if ($key == 'width') {
+  elseif ($key == 'width') {
     $height = $s;
     $width = NULL;
   }
 }
 
+/**
+ * Implements hook_image_default_styles().
+ */
 function responsive_image_styles_image_default_styles() {
   $base = responsive_image_styles_get_base_styles();
   $return = array();
 
-  foreach($base as $key => $item) {
-    foreach(array('ls', 'sq', 'po') as $ratio) {
-      if (!isset($item[$ratio]))
+  foreach ($base as $key => $item) {
+    foreach (array('ls', 'sq', 'po') as $ratio) {
+      if (!isset($item[$ratio])) {
         continue;
-      $style_name = $key.'_'.$ratio.'_'.$item['type'].'_';
+      }
+      $style_name = $key . '_' . $ratio . '_' . $item['type'] . '_';
 
       $sizes = $item[$ratio];
       $size_key = isset($sizes['min_width']) ? 'width' : 'height';
 
-      $min = $sizes['min_'.$size_key];
+      $min = $sizes['min_' . $size_key];
       $max = $sizes[$size_key];
 
       $s = $min;
@@ -120,7 +154,7 @@ function responsive_image_styles_image_default_styles() {
       $height = NULL;
       $step_width = isset($item['step_width']) ? $item['step_width'] : RESPONSIVE_IMAGE_STYLE_STEPS;
 
-      while($s < $max) {
+      while ($s < $max) {
         _responsive_image_styles_compute_width_and_height($sizes, $width, $height, $s, $size_key);
 
         $return[$style_name . $s] = _responsive_image_styles_default_add_style($item['type'], $width, $height);
@@ -134,8 +168,11 @@ function responsive_image_styles_image_default_styles() {
   return $return;
 }
 
+/**
+ * get a name for style, ratio and size.
+ */
 function _responsive_image_styles_get_style_name($style, $ratio, $size) {
-  return $style['name'].'_'.$ratio.'_'.$style['type'].'_'.$size;
+  return $style['name'] . '_' . $ratio . '_' . $style['type'] . '_' . $size;
 }
 
 
@@ -156,10 +193,13 @@ function responsive_image_styles_field_formatter_info() {
   );
 }
 
+/**
+ * Compute options-array.
+ */
 function responsive_image_styles_as_options() {
   $data = responsive_image_styles_get_base_styles();
   $preset_options = array();
-  foreach($data as $item) {
+  foreach ($data as $item) {
     $preset_options[$item['name']] = $item['description'];
   }
   return $preset_options;
@@ -220,3 +260,92 @@ function responsive_image_styles_field_formatter_view($entity_type, $entity, $fi
 
   return $element;
 }
+
+
+
+
+
+/**
+ * Implements hook_image_effects_info().
+ */
+function responsive_image_styles_image_effect_info() {
+  $effects = array(
+    'responsive_image_styles_scale_min' => array(
+      'label' => t('Minimum resize'),
+      'help' => t('Resizing an image so that width or height is equal or greater than the given values'),
+      'effect callback' => 'responsive_image_styles_scale_min_effect',
+      'dimensions callback' => 'responsive_image_styles_scale_min_dimensions',
+      'form callback' => 'responsive_image_styles_scale_min_form',
+      'summary theme' => 'responsive_image_styles_scale_min_summary',
+    ),
+  );
+
+  return $effects;
+}
+
+
+/**
+ * Implements scale_min_effect.
+ */
+function responsive_image_styles_scale_min_effect(&$image, $data) {
+
+  $new_size = $image->info;
+  responsive_image_styles_scale_min_dimensions($new_size, $data);
+
+  if (!image_scale($image, $new_size['width'], $new_size['height'], FALSE)) {
+    watchdog(
+      'responsive_image_styles',
+      'Image scale failed using the %toolkit toolkit on %path (%mimetype, %dimensions)',
+      array(
+        '%toolkit' => $image->toolkit,
+        '%path' => $image->source,
+        '%mimetype' => $image->info['mime_type'],
+        '%dimensions' => $image->info['width'] . 'x' . $image->info['height']
+      ),
+      WATCHDOG_ERROR);
+
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
+/**
+ * Compute dimensions of min_scale-effect.
+ */
+function responsive_image_styles_scale_min_dimensions(array &$dimensions, array $data) {
+  if ($dimensions['width'] && $dimensions['height']) {
+    $scale_x = $data['width'] / $dimensions['width'];
+    $scale_y = $data['width'] / $dimensions['height'];
+    $scale = min(1.0, max($scale_x, $scale_y));
+
+    $dimensions['width'] *= $scale;
+    $dimensions['height'] *= $scale;
+
+    $dimensions['width'] = round($dimensions['width']);
+    $dimensions['height'] = round($dimensions['height']);
+
+  }
+}
+
+
+/**
+ * Get effect form.
+ */
+function responsive_image_styles_scale_min_form($data) {
+  $form = image_resize_form($data);
+  $form['width']['#required'] = TRUE;
+  $form['height']['#required'] = TRUE;
+
+  return $form;
+}
+
+
+/**
+ * Theme effect summary.
+ */
+function theme_responsive_image_styles_scale_min_summary($variables) {
+  $data = $variables['data'];
+  return theme('image_resize_summary', array('data' => $data));
+}
+
