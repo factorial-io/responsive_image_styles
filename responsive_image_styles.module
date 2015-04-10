@@ -73,7 +73,7 @@ function _responsive_image_styles_default_add_style($type, $width, $height) {
     return array(
       'effects' => array(
         array(
-          'name' => 'responsive_image_style_min_scale_effect',
+          'name' => 'responsive_image_styles_scale_min_effect',
           'weight' => 0,
           'data' => array(
             'width' => $width,
