@@ -19,6 +19,9 @@ function responsive_image_styles_theme() {
       ),
       'file' => 'responsive_image_styles.theme.inc',
     ),
+    'responsive_image_styles_scale_min_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
   );
 }
 
@@ -67,13 +70,28 @@ function &responsive_image_styles_get_base_styles() {
  * Add default styles.
  */
 function _responsive_image_styles_default_add_style($type, $width, $height) {
-  $min_scale_effect = variable_get('responsive_images_min_scale_effect', 'focal_point_scale_and_crop');
+  $min_scale_effect = variable_get('responsive_image_styles_scale_min', 'focal_point_scale_and_crop');
 
   if ($type == 'min_scale') {
     return array(
       'effects' => array(
         array(
           'name' => $min_scale_effect,
+          'weight' => 0,
+          'data' => array(
+            'width' => $width,
+            'height' => $height,
+            'upscale' => FALSE,
+          ),
+        ),
+      ),
+    );
+  }
+  if ($type == 'min_scale_no_crop') {
+    return array(
+      'effects' => array(
+        array(
+          'name' => 'responsive_image_styles_scale_min',
           'weight' => 0,
           'data' => array(
             'width' => $width,
@@ -311,3 +329,89 @@ function responsive_image_styles_field_formatter_view($entity_type, $entity, $fi
   }
   return $element;
 }
+
+
+/**
+ * Implements hook_image_effects_info().
+ */
+function responsive_image_styles_image_effect_info() {
+  $effects = array(
+    'responsive_image_styles_scale_min' => array(
+      'label' => t('Minimum resize'),
+      'help' => t('Resizing an image so that width or height is equal or greater than the given values'),
+      'effect callback' => 'responsive_image_styles_scale_min_effect',
+      'dimensions callback' => 'responsive_image_styles_scale_min_dimensions',
+      'form callback' => 'responsive_image_styles_scale_min_form',
+      'summary theme' => 'responsive_image_styles_scale_min_summary',
+    ),
+  );
+
+  return $effects;
+}
+
+
+/**
+ * Implements scale_min_effect.
+ */
+function responsive_image_styles_scale_min_effect(&$image, $data) {
+
+  $new_size = $image->info;
+  responsive_image_styles_scale_min_dimensions($new_size, $data);
+
+  if (!image_scale($image, $new_size['width'], $new_size['height'], FALSE)) {
+    watchdog(
+      'responsive_image_styles',
+      'Image scale failed using the %toolkit toolkit on %path (%mimetype, %dimensions)',
+      array(
+        '%toolkit' => $image->toolkit,
+        '%path' => $image->source,
+        '%mimetype' => $image->info['mime_type'],
+        '%dimensions' => $image->info['width'] . 'x' . $image->info['height']
+      ),
+      WATCHDOG_ERROR);
+
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
+/**
+ * Compute dimensions of min_scale-effect.
+ */
+function responsive_image_styles_scale_min_dimensions(array &$dimensions, array $data) {
+  if ($dimensions['width'] && $dimensions['height']) {
+    $scale_x = $data['width'] / $dimensions['width'];
+    $scale_y = $data['width'] / $dimensions['height'];
+    $scale = min(1.0, max($scale_x, $scale_y));
+
+    $dimensions['width'] *= $scale;
+    $dimensions['height'] *= $scale;
+
+    $dimensions['width'] = round($dimensions['width']);
+    $dimensions['height'] = round($dimensions['height']);
+
+  }
+}
+
+
+/**
+ * Get effect form.
+ */
+function responsive_image_styles_scale_min_form($data) {
+  $form = image_resize_form($data);
+  $form['width']['#required'] = TRUE;
+  $form['height']['#required'] = TRUE;
+
+  return $form;
+}
+
+
+/**
+ * Theme effect summary.
+ */
+function theme_responsive_image_styles_scale_min_summary($variables) {
+  $data = $variables['data'];
+  return theme('image_resize_summary', array('data' => $data));
+}
+
