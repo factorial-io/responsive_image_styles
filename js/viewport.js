@@ -28,6 +28,7 @@ function isMobileDevice() {
     this.options = {
       threshold: 2,
       disableOnMobile: true,
+      disabled: false
     };
 
     jQuery.extend(this.options, options);
@@ -106,9 +107,32 @@ function isMobileDevice() {
       var o = elem.offset();
       var elementWidth = elem.width();
       var elementHeight = elem.height();
+      var inViewport = false;
+      var inExtendedViewport = false;
 
-      // check extended viewport, load image, if necessary
-      if ((o.left > r + tx) || (o.top > b + ty) || ( o.left + elementWidth < l - tx) || (o.top + elementHeight < t - ty)) {
+      if (that.options.disabled) {
+        inViewport = true;
+        inExtendedViewport = true;
+      }
+      else {
+        // check extended viewport, load image, if necessary
+        if ((o.left > r + tx) || (o.top > b + ty) || ( o.left + elementWidth < l - tx) || (o.top + elementHeight < t - ty)) {
+          inExtendedViewport = false;
+        }
+        else {
+          inExtendedViewport = true;
+        }
+
+        // check viewport
+        if ((o.left > r) || (o.top > b) || ( o.left + elementWidth < l) || (o.top + elementHeight < t)) {
+          inViewport = false;
+        }
+        else {
+          inViewport = true;
+        }
+      }
+
+      if (!inExtendedViewport) {
         elem.data('inExtendedViewport', false);
         data.inExtendedViewport = false;
       } else {
@@ -119,12 +143,9 @@ function isMobileDevice() {
           // console.log('new in extended viewport, calling fn');
           data.loadFn();
         }
-
         data.inExtendedViewport = true;
       }
-
-      // check viewport
-      if ((o.left > r) || (o.top > b) || ( o.left + elementWidth < l) || (o.top + elementHeight < t)) {
+      if (!inViewport) {
         if (data.inViewport) {
           data.inViewportFn(false);
         }
@@ -181,6 +202,11 @@ function isMobileDevice() {
     else {
       return this.options.cssClasses[key];
     }
+  };
+
+  ViewportSingleton.prototype.disable = function() {
+    this.options.disabled = true;
+    this.update();
   };
 
 
