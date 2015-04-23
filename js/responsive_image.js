@@ -7,7 +7,7 @@
   RI_CLASSNAMES = {
     WRAPPER: 'focal-point-wrapper',
     IMAGE: 'responsive-image',
-    FAKE_CHILDREN_IN_VIEWPORT: 'slider-container',
+    FAKE_CHILDREN_IN_VIEWPORT: 'FlexEmbed-content',
     FAKE_CHILDREN_IN_EXTENDED_VIEWPORT: 'slider-container-wrapper',
     STATE: {
       IS_LOADING: 'responsive-image--loading-state',

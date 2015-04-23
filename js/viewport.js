@@ -28,9 +28,9 @@ function isMobileDevice() {
     this.options = {
       threshold: 2,
       disableOnMobile: true,
-      disabled: false
+      disabled: false,
+      classNames: RI_CLASSNAMES
     };
-
     jQuery.extend(this.options, options);
 
     this.elements = [];
@@ -118,7 +118,7 @@ function isMobileDevice() {
       }
       else {
 
-        if($(this).closest(fakeChildrenInExtendedViewportSelector).length ) {
+        if(this.elem.closest(fakeChildrenInExtendedViewportSelector).length ) {
           inExtendedViewport = true;
         }
         else if ((o.left > r + tx) || (o.top > b + ty) || ( o.left + elementWidth < l - tx) || (o.top + elementHeight < t - ty)) {
@@ -130,7 +130,7 @@ function isMobileDevice() {
         }
 
         // check viewport
-        if($(this).closest(fakeChildrenInViewportSelector).length ) {
+        if(this.elem.closest(fakeChildrenInViewportSelector).length ) {
           inViewport = true;
         }
         else if ((o.left > r) || (o.top > b) || ( o.left + elementWidth < l) || (o.top + elementHeight < t)) {
