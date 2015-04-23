@@ -31,6 +31,17 @@
         this.attachImage(elem);
       }.bind(this));
 
+      $(window).bind("resize", function() { updateResponsiveImageParentContainer(); });
+
+      function updateResponsiveImageParentContainer() {
+        w = $('.SlideshowItem').width();
+        $('.ResponsiveImage').width(w);
+        h = $('.SlideshowItem').height();
+        $('.ResponsiveImage').height(h);
+        console.log( 'width: ' + w + ' & height: ' + h);
+      }
+      updateResponsiveImageParentContainer();
+
       // Check viewport.
       Drupal.viewportSingleton.update();
     }
