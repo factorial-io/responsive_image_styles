@@ -100,6 +100,8 @@ function isMobileDevice() {
     var t = $window.scrollTop();
     var r = l + $window.width();
     var b = t + $window.height();
+    var fakeChildrenInViewportSelector = '.' + this.options.classNames.FAKE_CHILDREN_IN_VIEWPORT;
+    var fakeChildrenInExtendedViewportSelector = '.' + this.options.classNames.FAKE_CHILDREN_IN_EXTENDED_VIEWPORT;
 
     $.each(this.elements, function(ndx, data) {
 
@@ -115,8 +117,12 @@ function isMobileDevice() {
         inExtendedViewport = true;
       }
       else {
-        // check extended viewport, load image, if necessary
-        if ((o.left > r + tx) || (o.top > b + ty) || ( o.left + elementWidth < l - tx) || (o.top + elementHeight < t - ty)) {
+
+        if($(this).closest(fakeChildrenInExtendedViewportSelector).length ) {
+          inExtendedViewport = true;
+        }
+        else if ((o.left > r + tx) || (o.top > b + ty) || ( o.left + elementWidth < l - tx) || (o.top + elementHeight < t - ty)) {
+          // check extended viewport, load image, if necessary
           inExtendedViewport = false;
         }
         else {
@@ -124,7 +130,10 @@ function isMobileDevice() {
         }
 
         // check viewport
-        if ((o.left > r) || (o.top > b) || ( o.left + elementWidth < l) || (o.top + elementHeight < t)) {
+        if($(this).closest(fakeChildrenInViewportSelector).length ) {
+          inViewport = true;
+        }
+        else if ((o.left > r) || (o.top > b) || ( o.left + elementWidth < l) || (o.top + elementHeight < t)) {
           inViewport = false;
         }
         else {
