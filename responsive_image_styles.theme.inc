@@ -94,19 +94,15 @@ function theme_responsive_image($vars) {
       $json_attributes['ratios'][$r]['maxHeight'] = $style_data[$r]['height'];
     }
     if (isset($style_data['cover']) && ($style_data['cover'])) {
-      $crop_data = array(
-        'width' => $style_data[$r]['width'],
-        'height' => $style_data[$r]['height'],
-      );
       $focal_point = focal_point_parse($file['focal_point']);
       if (empty($focal_point)) {
         $focal_point = FOCAL_POINT_DEFAULT;
       }
+      $crop_data = _responsive_image_styles_compute_crop($file, $style_data['type'], $style_data[$r], $focal_point);
 
-      $crop_data['x'] = focal_point_effect_calculate_anchor($file['width'], $crop_data['width'], $focal_point['x-offset']);
-      $crop_data['y'] = focal_point_effect_calculate_anchor($file['height'], $crop_data['height'], $focal_point['y-offset']);
+
       $json_attributes['ratios'][$r]['crop'] = $crop_data;
-      $json_attributes['ratios'][$r]['resize'] = focal_point_effect_resize_data($file['width'], $file['height'], $crop_data['width'], $crop_data['height']);
+      // $json_attributes['ratios'][$r]['resize'] = focal_point_effect_resize_data($file['width'], $file['height'], $crop_data['width'], $crop_data['height']);
     }
     else {
       $json_attributes['full_width'] = $file['width'];

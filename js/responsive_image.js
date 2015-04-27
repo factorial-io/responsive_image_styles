@@ -5,6 +5,7 @@
 (function ($) {
 
   RI_CLASSNAMES = {
+    PROXY_SIZE_CONTAINER_SELECTOR: false,
     WRAPPER: 'focal-point-wrapper',
     IMAGE: 'responsive-image',
     STATE: {
@@ -29,20 +30,29 @@
     this.mayApplyFocalPoint = this.elem.parent().hasClass(this.classNames.WRAPPER);
     this.firstImage = true;
     this.imageWidth = this.imageHeight = 1;
-    if (this.options)
+    this.parentElem = this.getParentContainer();
+    if (this.options) {
       this.init();
+    }
   };
 
   ResponsiveImage.prototype.getParentContainer = function() {
     var parent_elem = this.elem.parent();
-    if (selector = this.elem.attr('data-parent-container')) {
-      var container = this.elem.closest(selector);
-      if(container.length){
-        parent_elem = container;
-      }
-    };
+    var selectors  = [];
+    if (this.classNames.PROXY_SIZE_CONTAINER_SELECTOR) {
+      selectors.push(this.classNames.PROXY_SIZE_CONTAINER_SELECTOR);
+    }
+    var selector = this.elem.attr('data-parent-container');
+    if(selector) {
+      selectors.push(this.classNames.PROXY_SIZE_CONTAINER_SELECTOR);
+    }
+    var container = this.elem.closest(selectors.join());
+    if(container.length) {
+      parent_elem = container;
+    }
+
     return parent_elem;
-  }
+  };
 
   ResponsiveImage.prototype.debounce = function(callback, wait) {
     var timeout, result;
@@ -70,7 +80,7 @@
   ResponsiveImage.prototype.init = function() {
 
     // add elem to viewportManager
-    var parent_elem = this.getParentContainer();
+    var parent_elem = this.parentElem;
     Drupal.viewportSingleton.add( parent_elem, function() { this.compute(); }.bind(this), function(inViewport) { this.handleInViewport(inViewport); }.bind(this));
 
 
@@ -118,7 +128,7 @@
 
   ResponsiveImage.prototype.compute = function() {
 
-    var parent_elem = this.getParentContainer();
+    var parent_elem = this.parentElem;
 
     if (!Drupal.viewportSingleton.inExtendedViewport(parent_elem))
       return;
@@ -245,8 +255,8 @@
   ResponsiveImage.prototype.applyFocalPoint = function() {
     var par_w, par_h, new_w, new_h;
 
-    par_w = this.getParentContainer().width();
-    par_h = this.getParentContainer().height();
+    par_w = this.parentElem.width();
+    par_h = this.parentElem.height();
 
     if ((par_w === undefined) || (par_h === undefined)) {
       // console.log('parent-container undefined');

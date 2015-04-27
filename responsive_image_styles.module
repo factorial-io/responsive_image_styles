@@ -217,6 +217,7 @@ function responsive_images_get_css_class_names() {
   if (is_null($css_class_names)) {
 
     $default = array(
+      'PROXY_SIZE_CONTAINER_SELECTOR' => FALSE,
       'WRAPPER' => 'focal-point-wrapper',
       'IMAGE' => 'responsive-image',
       'STATE' => array(
@@ -229,6 +230,8 @@ function responsive_images_get_css_class_names() {
     );
     $css_class_names = drupal_array_merge_deep($default, variable_get('responsive_images_css_class_names', array()));
   }
+
+  drupal_alter('responsive_images_css_class_names', $css_class_names);
 
   return $css_class_names;
 }
@@ -404,6 +407,38 @@ function responsive_image_styles_scale_min_form($data) {
   $form['height']['#required'] = TRUE;
 
   return $form;
+}
+
+
+/**
+ * Method to calculate cropped image-size.
+ */
+function _responsive_image_styles_compute_crop($file, $style_name, $style_data, $focal_point) {
+
+  if ($style_name == 'min_scale') {
+
+
+    $crop_data = array(
+      'width' => $style_data['width'],
+      'height' => $style_data['height'],
+    );
+
+    $crop_data['x'] = focal_point_effect_calculate_anchor($file['width'], $crop_data['width'], $focal_point['x-offset']);
+    $crop_data['y'] = focal_point_effect_calculate_anchor($file['height'], $crop_data['height'], $focal_point['y-offset']);
+  }
+  else {
+    $crop_data = array(
+      'width' => $file['width'],
+      'height' => $file['height'],
+      'x' => '0',
+      'y' => '0',
+    );
+
+    $crop_data['x'] = focal_point_effect_calculate_anchor($file['width'], $crop_data['width'], $focal_point['x-offset']);
+    $crop_data['y'] = focal_point_effect_calculate_anchor($file['height'], $crop_data['height'], $focal_point['y-offset']);
+  }
+
+  return $crop_data;
 }
 
 
