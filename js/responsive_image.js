@@ -33,6 +33,16 @@
       this.init();
   };
 
+  ResponsiveImage.prototype.getParentContainer = function() {
+    var parent_elem = this.elem.parent();
+    if (selector = this.elem.attr('data-parent-container')) {
+      var container = this.elem.closest(selector);
+      if(container.length){
+        parent_elem = container;
+      }
+    };
+    return parent_elem;
+  }
 
   ResponsiveImage.prototype.debounce = function(callback, wait) {
     var timeout, result;
@@ -60,7 +70,7 @@
   ResponsiveImage.prototype.init = function() {
 
     // add elem to viewportManager
-    var parent_elem = this.elem.parent();
+    var parent_elem = this.getParentContainer();
     Drupal.viewportSingleton.add( parent_elem, function() { this.compute(); }.bind(this), function(inViewport) { this.handleInViewport(inViewport); }.bind(this));
 
 
@@ -108,7 +118,7 @@
 
   ResponsiveImage.prototype.compute = function() {
 
-    var parent_elem = this.elem.parent();
+    var parent_elem = this.getParentContainer();
 
     if (!Drupal.viewportSingleton.inExtendedViewport(parent_elem))
       return;
@@ -235,8 +245,8 @@
   ResponsiveImage.prototype.applyFocalPoint = function() {
     var par_w, par_h, new_w, new_h;
 
-    par_w = this.elem.parent().width();
-    par_h = this.elem.parent().height();
+    par_w = this.getParentContainer().width();
+    par_h = this.getParentContainer().height();
 
     if ((par_w === undefined) || (par_h === undefined)) {
       // console.log('parent-container undefined');
