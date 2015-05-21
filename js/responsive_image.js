@@ -44,16 +44,21 @@
   ResponsiveImage.prototype.getParentContainer = function() {
     var parentElement = this.element.parent();
     var selectors  = [];
+    // REVIEW: Could use this.element.data('parentContainer') ?
+    var selector = this.element.attr('data-parent-container');
+    var containerElement;
+
     if (this.classNames.PROXY_SIZE_CONTAINER_SELECTOR) {
       selectors.push(this.classNames.PROXY_SIZE_CONTAINER_SELECTOR);
     }
-    var selector = this.element.attr('data-parent-container');
+
     if(selector) {
       selectors.push(this.classNames.PROXY_SIZE_CONTAINER_SELECTOR);
     }
-    var container = this.element.closest(selectors.join());
-    if(container.length) {
-      parentElement = container;
+
+    containerElement = this.element.closest(selectors.join());
+    if(containerElement[0]) {
+      parentElement = containerElement;
     }
 
     return parentElement;
