@@ -214,8 +214,7 @@
   };
 
   ResponsiveImage.prototype.setState = function(obj) {
-    var on, off;
-    var that = this;
+    var _this = this;
     var states = {
       isLoading: {
         on: (this.firstImage) ? this.classNames.STATE.IS_INITIAL_LOADING : this.classNames.STATE.IS_LOADING,
@@ -223,7 +222,7 @@
       },
       isLoaded: {
         on: this.classNames.STATE.IS_LOADED,
-        off: [this.classNames.STATE.IS_INITIAL_LOADING,this.classNames.STATE.ISLOADING].join(' ')
+        off: [this.classNames.STATE.IS_INITIAL_LOADING, this.classNames.STATE.ISLOADING].join(' ')
       },
       isInViewport: {
         on: this.classNames.STATE.IS_IN_VIEWPORT,
@@ -231,21 +230,19 @@
       }
     };
 
-    jQuery.each(obj, function(key, value) {
+    $.each(obj, function(key, value) {
       if (key in states) {
         var state = states[key];
         var on = value ? state.on : state.off;
         var off = value ? state.off : state.on;
+
         if (on) {
-          that.elem.addClass(on);
+          _this.elem.addClass(on);
         }
+
         if (off) {
-          that.elem.removeClass(off);
+          _this.elem.removeClass(off);
         }
-        // console.log(key, value, on, off);
-      }
-      else {
-        // console.log("unknown state: ", key);
       }
     });
   };
