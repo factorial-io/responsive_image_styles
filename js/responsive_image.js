@@ -128,31 +128,31 @@
   // find best match
   ResponsiveImage.prototype.findBestMatchingRatio = function(width, height) {
     var min_d = 1000.0; // REVIEW: What is min_d ?
-    var desired_ratio_name;
-    var source_ratio = (height !== 0) ? width / height : 1.0;
+    var desiredRatioName;
+    var sourceRatio = (height !== 0) ? width / height : 1.0;
+    var delta;
     var ratio;
     var size;
-    var delta;
 
-    $.each(this.options.ratios, function(ndx, elem) {
+    $.each(this.options.ratios, function(index, element) {
 
-      if(!desired_ratio_name) {
-        desired_ratio_name = ndx;
+      if(!desiredRatioName) {
+        desiredRatioName = index;
       }
 
-      if (elem.crop) {
-        size = elem.crop;
+      if (element.crop) {
+        size = element.crop;
         ratio = size.width / size.height;
-        delta = Math.abs(source_ratio - ratio);
+        delta = Math.abs(sourceRatio - ratio);
 
         if (delta < min_d) {
-          desired_ratio_name = ndx;
+          desiredRatioName = index;
           min_d = delta;
         }
       }
     });
 
-    return desired_ratio_name;
+    return desiredRatioName;
   };
 
   ResponsiveImage.prototype.compute = function() {
