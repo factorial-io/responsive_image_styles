@@ -298,54 +298,69 @@
     return this.options.src.replace('public://', path);
   };
 
+  /*
+   * REVIEW: Complexity? Could be split into multiple methods?
+   * REVIEW: this.options are snake_cased?
+   */
+
   ResponsiveImage.prototype.applyFocalPoint = function() {
-    var par_w, par_h, new_w, new_h;
+    var parentWidth = this.parentElement.width();
+    var parentHeight = this.parentElement.height();
+    var newWidth;
+    var newHeight;
+    var aspectRatio;
 
-    par_w = this.parentElement.width();
-    par_h = this.parentElement.height();
-
-    if ((par_w === undefined) || (par_h === undefined)) {
-      // console.log('parent-container undefined');
+    // Return early if parent container is undefined.
+    if ((parentWidth === undefined) || (parentHeight === undefined)) {
       return;
     }
 
     if (!this.mayApplyFocalPoint || (this.imageWidth === undefined)) {
 
       if (this.options.full_width) {
+
         if(this.firstImage) {
-          var ar = this.options.full_height / this.options.full_width;
-          new_w = par_w;
-          new_h = par_w * ar;
-          /*if (new_h > par_h) {
-            new_h = par_h;
-            new_w = par_h * this.options.aspectRatio;
-          }*/
-          this.element.css({width: Math.round(new_w), height: Math.round(new_h)});
+          aspectRatio = this.options.full_height / this.options.full_width;
+          newWidth = parentWidth;
+          newHeight = parentWidth * aspectRatio;
+
+          // REVIEW: Obsolete?
+          // if (newHeight > parentHeight) {
+          //   newHeight = parentHeight;
+          //   newWidth = parentHeight * this.options.aspectRatio;
+          // }
+
+          this.element.css({
+            width: Math.round(newWidth),
+            height: Math.round(newHeight)
+          });
         }
         else {
-          this.element.css({width: '', height: ''});
+          this.element.css({
+            width: '',
+            height: ''
+          });
         }
       }
 
       return;
     }
 
-
     var img_w = this.imageWidth;
     var img_h = this.imageHeight;
 
-    // console.log("apply focal point", this.options.src, img_w, img_h, par_w, par_h);
+    // console.log("apply focal point", this.options.src, img_w, img_h, parentWidth, parentHeight);
 
-    var scale = Math.max(par_w / img_w, par_h / img_h);
-    new_w = Math.ceil(scale * img_w);
-    new_h = Math.ceil(scale * img_h);
+    var scale = Math.max(parentWidth / img_w, parentHeight / img_h);
+    newWidth = Math.ceil(scale * img_w);
+    newHeight = Math.ceil(scale * img_h);
 
-    var dx = Math.round((par_w - new_w) * this.options.focalPoint.x / 100.0);
-    var dy = Math.round((par_h - new_h) * this.options.focalPoint.y / 100.0);
+    var dx = Math.round((parentWidth - newWidth) * this.options.focalPoint.x / 100.0);
+    var dy = Math.round((parentHeight - newHeight) * this.options.focalPoint.y / 100.0);
 
-    // console.log('d', dx, dy,'new', new_w,new_h, 'scale', scale, 'img', img_w, img_h, 'parent', par_w, par_h, 'fp', this.options.focalPoint);
+    // console.log('d', dx, dy,'new', newWidth,newHeight, 'scale', scale, 'img', img_w, img_h, 'parent', parentWidth, parentHeight, 'fp', this.options.focalPoint);
 
-    this.element.css({left: dx, top: dy, width: new_w, height: new_h});
+    this.element.css({left: dx, top: dy, width: newWidth, height: newHeight});
 
     // console.log(this.element.css('left'), this.element.css('top'));
   };
