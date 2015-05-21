@@ -273,15 +273,19 @@
         this.setState({isLoaded: true});
         this.applyFocalPoint();
 
-
-
       }.bind(this)).attr('src', new_src);
       this.temp_image = temp_image;
     }
   };
 
   ResponsiveImage.prototype.getPresetUrl = function(ratio, size) {
-    var path = Drupal.settings.basePath + Drupal.settings.responsive_image_styles.file_path + '/styles/' + this.options.style + '_' + ratio + '_' + this.options.type + '_' + size + '/public/';
+    var path = window.Drupal.settings.basePath +
+      window.Drupal.settings.responsive_image_styles.file_path +
+      '/styles/' + this.options.style +
+      '_' + ratio +
+      '_' + this.options.type +
+      '_' + size +
+      '/public/';
     return this.options.src.replace('public://', path);
   };
 
