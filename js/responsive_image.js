@@ -99,7 +99,7 @@
     // add elem to viewportManager
     var parentElement = this.parentElement;
 
-    Drupal.viewportSingleton.add(
+    window.Drupal.viewportSingleton.add(
       parentElement,
       function() {
         this.compute();
