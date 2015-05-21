@@ -26,13 +26,13 @@
    * responsive image class. Will load a new src on size changes
    */
 
-  ResponsiveImage = function(elem, options) {
-    this.elem = elem;
+  ResponsiveImage = function(element, options) {
+    this.element = element;
     this.classNames = options.classNames;
-    this.elem.addClass(this.classNames.IMAGE);
+    this.element.addClass(this.classNames.IMAGE);
     this.options = options;
     this.devicePixelRatio = this.getDevicePixelRatio();
-    this.mayApplyFocalPoint = this.elem.parent().hasClass(this.classNames.WRAPPER);
+    this.mayApplyFocalPoint = this.element.parent().hasClass(this.classNames.WRAPPER);
     this.firstImage = true;
     this.imageWidth = this.imageHeight = 1;
     this.parentElem = this.getParentContainer();
@@ -42,16 +42,16 @@
   };
 
   ResponsiveImage.prototype.getParentContainer = function() {
-    var parent_elem = this.elem.parent();
+    var parent_elem = this.element.parent();
     var selectors  = [];
     if (this.classNames.PROXY_SIZE_CONTAINER_SELECTOR) {
       selectors.push(this.classNames.PROXY_SIZE_CONTAINER_SELECTOR);
     }
-    var selector = this.elem.attr('data-parent-container');
+    var selector = this.element.attr('data-parent-container');
     if(selector) {
       selectors.push(this.classNames.PROXY_SIZE_CONTAINER_SELECTOR);
     }
-    var container = this.elem.closest(selectors.join());
+    var container = this.element.closest(selectors.join());
     if(container.length) {
       parent_elem = container;
     }
@@ -215,7 +215,7 @@
   };
 
   ResponsiveImage.prototype.requestNewImage = function(new_src) {
-    var current_src = this.elem.attr('src');
+    var current_src = this.element.attr('src');
     if(new_src != current_src) {
       this.setState({isLoading: true});
 
@@ -225,14 +225,14 @@
         this.temp_image = null;
       }
       var temp_image = $('<img>').load(function() {
-        this.elem.attr('src', temp_image.attr('src'));
+        this.element.attr('src', temp_image.attr('src'));
         this.imageWidth = temp_image[0].width;
         this.imageHeight = temp_image[0].height;
         // console.log(this.imageWidth, this.imageHeight, temp_image);
 
         $.event.trigger({
           type: "responsiveImageReady",
-          image: this.elem,
+          image: this.element,
           first: this.firstImage
         });
 
@@ -274,10 +274,10 @@
             new_h = par_h;
             new_w = par_h * this.options.aspectRatio;
           }*/
-          this.elem.css({width: Math.round(new_w), height: Math.round(new_h)});
+          this.element.css({width: Math.round(new_w), height: Math.round(new_h)});
         }
         else {
-          this.elem.css({width: '', height: ''});
+          this.element.css({width: '', height: ''});
         }
       }
 
@@ -299,9 +299,9 @@
 
     // console.log('d', dx, dy,'new', new_w,new_h, 'scale', scale, 'img', img_w, img_h, 'parent', par_w, par_h, 'fp', this.options.focalPoint);
 
-    this.elem.css({left: dx, top: dy, width: new_w, height: new_h});
+    this.element.css({left: dx, top: dy, width: new_w, height: new_h});
 
-    // console.log(this.elem.css('left'), this.elem.css('top'));
+    // console.log(this.element.css('left'), this.element.css('top'));
   };
 
   /*
