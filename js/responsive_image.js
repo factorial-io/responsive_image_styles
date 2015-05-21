@@ -42,7 +42,7 @@
   };
 
   ResponsiveImage.prototype.getParentContainer = function() {
-    var parent_elem = this.element.parent();
+    var parentElement = this.element.parent();
     var selectors  = [];
     if (this.classNames.PROXY_SIZE_CONTAINER_SELECTOR) {
       selectors.push(this.classNames.PROXY_SIZE_CONTAINER_SELECTOR);
@@ -53,10 +53,10 @@
     }
     var container = this.element.closest(selectors.join());
     if(container.length) {
-      parent_elem = container;
+      parentElement = container;
     }
 
-    return parent_elem;
+    return parentElement;
   };
 
   ResponsiveImage.prototype.debounce = function(callback, wait) {
