@@ -44,6 +44,7 @@
   ResponsiveImage.prototype.getParentContainer = function() {
     var parentElement = this.element.parent();
     var selectors  = [];
+
     // REVIEW: Could use this.element.data('parentContainer') ?
     var selector = this.element.attr('data-parent-container');
     var containerElement;
@@ -158,17 +159,11 @@
   ResponsiveImage.prototype.compute = function() {
     var parentElement = this.parentElement;
 
-    if (!Drupal.viewportSingleton.inExtendedViewport(parentElement)) {
+    if (!window.Drupal.viewportSingleton.inExtendedViewport(parentElement)) {
       return;
     }
 
-    /*
-    var now = new Date().getMilliseconds();
-    console.log("compute ", now - this.lastComputed);
-    this.lastComputed = now;
-    */
-
-    // REVEW: What is cs, computedSize?, currentSize?
+    // REVEW: What is cs, computedSize?, currentSize, containerSize?
     var cs = {
       width: parentElement.width(),
       height: parentElement.height()
@@ -178,8 +173,6 @@
     if (cs.width === 0) {
       return;
     }
-
-    //console.log(this.options);
 
     var desired_ratio = this.findBestMatchingRatio(cs.width, cs.height);
 
