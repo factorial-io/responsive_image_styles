@@ -96,12 +96,19 @@
   ResponsiveImage.prototype.init = function() {
 
     // add elem to viewportManager
-    var parent_elem = this.parentElem;
-    Drupal.viewportSingleton.add( parent_elem, function() { this.compute(); }.bind(this), function(inViewport) { this.handleInViewport(inViewport); }.bind(this));
+    var parentElment = this.parentElement;
 
+    Drupal.viewportSingleton.add(
+      parentElment,
+      function() {
+        this.compute();
+      }.bind(this),
+      function(inViewport) {
+        this.handleInViewport(inViewport);
+      }.bind(this));
 
     // bind to resize
-    $(window).resize(function() { this.handleResize(); }.bind(this));
+    $(window).on('resize', $.proxy(this.handleResize, this));
 
     this.compute();
     this.applyFocalPoint();
