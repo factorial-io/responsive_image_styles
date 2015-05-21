@@ -78,6 +78,11 @@
     timeout = window.setTimeout(later, wait);
   };
 
+  /*
+   * REVIEW: Could be static, as properties are not linked to this instance,
+   *  but rather to window.devicePixelRatio ?
+   */
+
   ResponsiveImage.prototype.getDevicePixelRatio = function() {
     var ratio = 1;
 
