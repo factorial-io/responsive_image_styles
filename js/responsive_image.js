@@ -247,34 +247,43 @@
     });
   };
 
-  ResponsiveImage.prototype.requestNewImage = function(new_src) {
-    var current_src = this.element.attr('src');
-    if(new_src != current_src) {
-      this.setState({isLoading: true});
+  ResponsiveImage.prototype.requestNewImage = function(newSrc) {
+    var currentSrc = this.element.attr('src');
+    var tempImage;
 
-      if(this.temp_image) {
-        // console.log("removing prev temp image");
-        this.temp_image.removeAttr('src');
-        this.temp_image = null;
+    if (newSrc != currentSrc) {
+      this.setState({
+        isLoading: true
+      });
+
+      if (this.tempImage) {
+        this.tempImage.removeAttr('src');
+        this.tempImage = null;
       }
-      var temp_image = $('<img>').load(function() {
-        this.element.attr('src', temp_image.attr('src'));
-        this.imageWidth = temp_image[0].width;
-        this.imageHeight = temp_image[0].height;
-        // console.log(this.imageWidth, this.imageHeight, temp_image);
 
-        $.event.trigger({
-          type: 'responsiveImageReady',
-          image: this.element,
-          first: this.firstImage
-        });
+      // REVIEW: Could use non-anonymous function?
+      tempImage = $('<img>')
+        .load($.proxy(
+          function() {
+            this.element.attr('src', tempImage.attr('src'));
+            this.imageWidth = tempImage[0].width;
+            this.imageHeight = tempImage[0].height;
 
-        this.firstImage = false;
-        this.setState({isLoaded: true});
-        this.applyFocalPoint();
+            $.event.trigger({
+              type: 'responsiveImageReady',
+              image: this.element,
+              first: this.firstImage
+            });
 
-      }.bind(this)).attr('src', new_src);
-      this.temp_image = temp_image;
+            this.firstImage = false;
+            this.setState({isLoaded: true});
+            this.applyFocalPoint();
+          },
+          this)
+        )
+        .attr('src', newSrc);
+
+      this.tempImage = tempImage;
     }
   };
 
