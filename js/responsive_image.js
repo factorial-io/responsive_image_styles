@@ -125,26 +125,33 @@
     this.debounce(this.compute, 250);
   };
 
+  // find best match
   ResponsiveImage.prototype.findBestMatchingRatio = function(width, height) {
-    // find best match
-    var min_d = 1000.0;
+    var min_d = 1000.0; // REVIEW: What is min_d ?
     var desired_ratio_name;
     var source_ratio = (height !== 0) ? width / height : 1.0;
+    var ratio;
+    var size;
+    var delta;
 
     $.each(this.options.ratios, function(ndx, elem) {
-      if(!desired_ratio_name)
-        desired_ratio_name = ndx;
-      if (elem.crop) {
-        var size = elem.crop;
-        ratio = size.width / size.height;
 
-        var delta = Math.abs(source_ratio - ratio);
+      if(!desired_ratio_name) {
+        desired_ratio_name = ndx;
+      }
+
+      if (elem.crop) {
+        size = elem.crop;
+        ratio = size.width / size.height;
+        delta = Math.abs(source_ratio - ratio);
+
         if (delta < min_d) {
           desired_ratio_name = ndx;
           min_d = delta;
         }
       }
     });
+
     return desired_ratio_name;
   };
 
