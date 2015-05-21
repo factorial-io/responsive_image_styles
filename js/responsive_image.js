@@ -114,8 +114,10 @@
     this.applyFocalPoint();
   };
 
-  ResponsiveImage.prototype.handleInViewport = function(elemInViewport) {
-    this.setState({ isInViewport: elemInViewport});
+  ResponsiveImage.prototype.handleInViewport = function(elementInViewport) {
+    this.setState({
+      isInViewport: elementInViewport
+    });
   };
 
   ResponsiveImage.prototype.handleResize = function() {
