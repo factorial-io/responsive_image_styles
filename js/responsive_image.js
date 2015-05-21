@@ -156,49 +156,61 @@
     return desiredRatioName;
   };
 
+  /*
+   * REVIEW: Complexity? Could be split into multiple methods?
+   */
+
   ResponsiveImage.prototype.compute = function() {
     var parentElement = this.parentElement;
+    var crop;
+    var cs; // REVEW: What is cs, computedSize?, currentSize, containerSize?
+    var current;
+    var desiredRatio;
+    var max;
+    var min;
+    var newSrc;
+    var range;
+    var rangeKey;
+    var scale;
+    var sizeKey;
 
     if (!window.Drupal.viewportSingleton.inExtendedViewport(parentElement)) {
       return;
     }
 
-    // REVEW: What is cs, computedSize?, currentSize, containerSize?
-    var cs = {
+    cs = {
       width: parentElement.width(),
       height: parentElement.height()
     };
 
-    // REVIEW: Could test to falsy, !cs.width ?
-    if (cs.width === 0) {
+    if (cs.width === 0) { // REVIEW: Could test to !cs.width ?
       return;
     }
 
-    var desired_ratio = this.findBestMatchingRatio(cs.width, cs.height);
+    desiredRatio = this.findBestMatchingRatio(cs.width, cs.height);
 
     // we need to adjust the width and the height, as the image might be scaled
-    if(this.mayApplyFocalPoint) {
-      var crop = this.options.ratios[desired_ratio].crop;
-      var scale = Math.max(cs.width / crop.width, cs.height / crop.height);
+    if (this.mayApplyFocalPoint) {
+      crop = this.options.ratios[desiredRatio].crop;
+      scale = Math.max(cs.width / crop.width, cs.height / crop.height);
       cs.width = Math.round(scale * crop.width);
       cs.height = Math.round(scale * crop.height);
     }
 
-    var size_key = (desired_ratio === 'ls') ? 'width' : 'height';
-    var range_key = (desired_ratio === 'ls') ? 'Width' : 'Height';
-    var range = this.options.ratios[desired_ratio];
+    // REVIEW: I'm assuming that 'ls' means 'landscape', is that clear enough?
+    sizeKey = (desiredRatio === 'ls') ? 'width' : 'height';
+    rangeKey = (desiredRatio === 'ls') ? 'Width' : 'Height';
+    range = this.options.ratios[desiredRatio];
 
-    var min = range['min'+range_key];
-    var max = range['max'+range_key];
-    var current = cs[size_key];
+    min = range['min' + rangeKey];
+    max = range['max' + rangeKey];
+    current = cs[sizeKey];
 
     current = Math.round((current-min) / this.options.steps) * this.options.steps + min;
     current = Math.min(Math.max(current, min), max);
 
-    //console.log(cs.width,cs.height,current, min, max, desired_ratio);
-
-    var new_src = this.getPresetUrl(desired_ratio, current * this.devicePixelRatio);
-    this.requestNewImage(new_src);
+    newSrc = this.getPresetUrl(desiredRatio, current * this.devicePixelRatio);
+    this.requestNewImage(newSrc);
   };
 
   ResponsiveImage.prototype.setState = function(obj) {
