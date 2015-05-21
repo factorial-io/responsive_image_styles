@@ -1,8 +1,13 @@
+'use strict';
+
 /**
  * Base Class handling responsive images via drupal image styles
  */
 
-(function ($) {
+(function ($, window, document, undefined) {
+
+  var RI_CLASSNAMES;
+  var ResponsiveImage;
 
   RI_CLASSNAMES = {
     PROXY_SIZE_CONTAINER_SELECTOR: false,
@@ -20,12 +25,12 @@
   /**
    * responsive image class. Will load a new src on size changes
    */
+
   ResponsiveImage = function(elem, options) {
     this.elem = elem;
     this.classNames = options.classNames;
     this.elem.addClass(this.classNames.IMAGE);
     this.options = options;
-
     this.devicePixelRatio = this.getDevicePixelRatio();
     this.mayApplyFocalPoint = this.elem.parent().hasClass(this.classNames.WRAPPER);
     this.firstImage = true;
@@ -66,7 +71,6 @@
     timeout = window.setTimeout(later, wait);
   };
 
-
   ResponsiveImage.prototype.getDevicePixelRatio = function() {
     var ratio = 1;
 
@@ -75,7 +79,6 @@
     }
     return ratio;
   };
-
 
   ResponsiveImage.prototype.init = function() {
 
@@ -96,7 +99,6 @@
   };
 
   ResponsiveImage.prototype.handleResize = function() {
-
     this.applyFocalPoint();
     this.debounce(this.compute, 250);
   };
@@ -123,8 +125,6 @@
     });
     return desired_ratio_name;
   };
-
-
 
   ResponsiveImage.prototype.compute = function() {
 
@@ -304,4 +304,11 @@
     // console.log(this.elem.css('left'), this.elem.css('top'));
   };
 
-})(jQuery);
+  /*
+   * Expose variables to the global window object.
+   */
+
+  window.ResponsiveImage = ResponsiveImage;
+  window.RI_CLASSNAMES = RI_CLASSNAMES;
+
+})(jQuery, window, document);
