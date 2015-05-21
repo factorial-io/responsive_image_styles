@@ -231,10 +231,14 @@
     };
 
     $.each(obj, function(key, value) {
+      var state;
+      var on;
+      var off;
+
       if (key in states) {
-        var state = states[key];
-        var on = value ? state.on : state.off;
-        var off = value ? state.off : state.on;
+        state = states[key];
+        on = value ? state.on : state.off;
+        off = value ? state.off : state.on;
 
         if (on) {
           _this.elem.addClass(on);
