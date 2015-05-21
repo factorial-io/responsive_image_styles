@@ -35,7 +35,7 @@
     this.mayApplyFocalPoint = this.element.parent().hasClass(this.classNames.WRAPPER);
     this.firstImage = true;
     this.imageWidth = this.imageHeight = 1;
-    this.parentElem = this.getParentContainer();
+    this.parentElement = this.getParentContainer();
     if (this.options) {
       this.init();
     }
@@ -141,7 +141,7 @@
 
   ResponsiveImage.prototype.compute = function() {
 
-    var parent_elem = this.parentElem;
+    var parent_elem = this.parentElement;
 
     if (!Drupal.viewportSingleton.inExtendedViewport(parent_elem))
       return;
@@ -268,8 +268,8 @@
   ResponsiveImage.prototype.applyFocalPoint = function() {
     var par_w, par_h, new_w, new_h;
 
-    par_w = this.parentElem.width();
-    par_h = this.parentElem.height();
+    par_w = this.parentElement.width();
+    par_h = this.parentElement.height();
 
     if ((par_w === undefined) || (par_h === undefined)) {
       // console.log('parent-container undefined');
