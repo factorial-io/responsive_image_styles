@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Base Class handling responsive images via drupal image styles
+ * Base Class handling responsive images via Drupal image styles
  */
 
 (function ($, window, document, undefined) {
@@ -254,7 +254,7 @@
 
       if(this.temp_image) {
         // console.log("removing prev temp image");
-        this.temp_image.removeAttr("src");
+        this.temp_image.removeAttr('src');
         this.temp_image = null;
       }
       var temp_image = $('<img>').load(function() {
@@ -264,7 +264,7 @@
         // console.log(this.imageWidth, this.imageHeight, temp_image);
 
         $.event.trigger({
-          type: "responsiveImageReady",
+          type: 'responsiveImageReady',
           image: this.element,
           first: this.firstImage
         });
