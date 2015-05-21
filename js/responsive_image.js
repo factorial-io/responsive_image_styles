@@ -122,7 +122,7 @@
 
   ResponsiveImage.prototype.handleResize = function() {
     this.applyFocalPoint();
-    this.debounce(this.compute, 250);
+    this.debounce(this.compute, 250); // REVIEW: Magic number.
   };
 
   // find best match
