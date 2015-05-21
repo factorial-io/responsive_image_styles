@@ -158,8 +158,9 @@
   ResponsiveImage.prototype.compute = function() {
     var parentElement = this.parentElement;
 
-    if (!Drupal.viewportSingleton.inExtendedViewport(parentElement))
+    if (!Drupal.viewportSingleton.inExtendedViewport(parentElement)) {
       return;
+    }
 
     /*
     var now = new Date().getMilliseconds();
@@ -167,18 +168,22 @@
     this.lastComputed = now;
     */
 
+    // REVEW: What is cs, computedSize?, currentSize?
     var cs = {
       width: parentElement.width(),
       height: parentElement.height()
     };
 
-    if((cs.width === 0))
+    // REVIEW: Could test to falsy, !cs.width ?
+    if (cs.width === 0) {
       return;
+    }
+
     //console.log(this.options);
 
     var desired_ratio = this.findBestMatchingRatio(cs.width, cs.height);
 
-    // we need to ajust the width and the height, as the image might be scaled
+    // we need to adjust the width and the height, as the image might be scaled
     if(this.mayApplyFocalPoint) {
       var crop = this.options.ratios[desired_ratio].crop;
       var scale = Math.max(cs.width / crop.width, cs.height / crop.height);
@@ -189,8 +194,6 @@
     var size_key = (desired_ratio === 'ls') ? 'width' : 'height';
     var range_key = (desired_ratio === 'ls') ? 'Width' : 'Height';
     var range = this.options.ratios[desired_ratio];
-
-
 
     var min = range['min'+range_key];
     var max = range['max'+range_key];
