@@ -65,13 +65,15 @@
   };
 
   ResponsiveImage.prototype.debounce = function(callback, wait) {
-    var timeout, result;
+    var result;
+    var timeout;
     var context = this;
     var args = arguments;
-    var later = function () {
+    var later = function() {
       timeout = null;
       result = callback.apply(context, args);
     };
+
     window.clearTimeout(timeout);
     timeout = window.setTimeout(later, wait);
   };
@@ -82,6 +84,7 @@
     if (typeof window.devicePixelRatio !== 'undefined') {
       ratio = window.devicePixelRatio >= 1.5 ? 2 : 1;
     }
+
     return ratio;
   };
 
