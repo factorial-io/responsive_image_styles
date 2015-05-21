@@ -314,6 +314,12 @@
     var newHeight;
     var aspectRatio;
 
+    var imageWidth;
+    var imageHeight;
+    var scale;
+    var dx; // REVIEW: Is deltaX or destinationX?
+    var dy;
+
     // Return early if parent container is undefined.
     if ((parentWidth === undefined) || (parentHeight === undefined)) {
       return;
@@ -350,23 +356,20 @@
       return;
     }
 
-    var img_w = this.imageWidth;
-    var img_h = this.imageHeight;
+    imageWidth = this.imageWidth;
+    imageHeight = this.imageHeight;
+    scale = Math.max(parentWidth / imageWidth, parentHeight / imageHeight);
+    newWidth = Math.ceil(scale * imageWidth);
+    newHeight = Math.ceil(scale * imageHeight);
+    dx = Math.round((parentWidth - newWidth) * this.options.focalPoint.x / 100.0);
+    dy = Math.round((parentHeight - newHeight) * this.options.focalPoint.y / 100.0);
 
-    // console.log("apply focal point", this.options.src, img_w, img_h, parentWidth, parentHeight);
-
-    var scale = Math.max(parentWidth / img_w, parentHeight / img_h);
-    newWidth = Math.ceil(scale * img_w);
-    newHeight = Math.ceil(scale * img_h);
-
-    var dx = Math.round((parentWidth - newWidth) * this.options.focalPoint.x / 100.0);
-    var dy = Math.round((parentHeight - newHeight) * this.options.focalPoint.y / 100.0);
-
-    // console.log('d', dx, dy,'new', newWidth,newHeight, 'scale', scale, 'img', img_w, img_h, 'parent', parentWidth, parentHeight, 'fp', this.options.focalPoint);
-
-    this.element.css({left: dx, top: dy, width: newWidth, height: newHeight});
-
-    // console.log(this.element.css('left'), this.element.css('top'));
+    this.element.css({
+      left: dx,
+      top: dy,
+      width: newWidth,
+      height: newHeight
+    });
   };
 
   /*
