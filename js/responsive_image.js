@@ -96,10 +96,10 @@
   ResponsiveImage.prototype.init = function() {
 
     // add elem to viewportManager
-    var parentElment = this.parentElement;
+    var parentElement = this.parentElement;
 
     Drupal.viewportSingleton.add(
-      parentElment,
+      parentElement,
       function() {
         this.compute();
       }.bind(this),
@@ -156,10 +156,9 @@
   };
 
   ResponsiveImage.prototype.compute = function() {
+    var parentElement = this.parentElement;
 
-    var parent_elem = this.parentElement;
-
-    if (!Drupal.viewportSingleton.inExtendedViewport(parent_elem))
+    if (!Drupal.viewportSingleton.inExtendedViewport(parentElement))
       return;
 
     /*
@@ -169,8 +168,8 @@
     */
 
     var cs = {
-      width: parent_elem.width(),
-      height: parent_elem.height()
+      width: parentElement.width(),
+      height: parentElement.height()
     };
 
     if((cs.width === 0))
