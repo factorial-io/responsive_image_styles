@@ -206,7 +206,8 @@
     max = range['max' + rangeKey];
     current = cs[sizeKey];
 
-    current = Math.round((current-min) / this.options.steps) * this.options.steps + min;
+    current = Math.round((current - min) /
+      this.options.steps) * this.options.steps + min;
     current = Math.min(Math.max(current, min), max);
 
     newSrc = this.getPresetUrl(desiredRatio, current * this.devicePixelRatio);
