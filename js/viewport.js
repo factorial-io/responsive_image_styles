@@ -17,7 +17,7 @@ function isMobileDevice() {
 }
 
 
-(function ($) {
+(function ($, window, document) {
 
   /**
    * ViewportSingleton, checks a list of elements if they are in the viewport or not
@@ -48,9 +48,8 @@ function isMobileDevice() {
     $(window).bind("resize", function() { this.update(); }.bind(this));
     $(window).bind("scroll", function() { this.update(); }.bind(this));
 
-    $(document).on('viewportUpdate', function(event) {
-      this.resetRecordedVisibiltyState();
-      this.update();
+    $(document).on('viewportUpdate', function() {
+      this.resetStateAndUpdate();
     }.bind(this));
   };
 
@@ -70,6 +69,14 @@ function isMobileDevice() {
       elem.data('inViewport', false);
     }
   };
+
+  /**
+   * Reset stored state and update.
+   */
+  ViewportSingleton.prototype.resetStateAndUpdate = function() {
+    this.resetRecordedVisibiltyState();
+    this.update();
+  }
 
   /**
    * reset the recorded visibility state
@@ -210,4 +217,4 @@ function isMobileDevice() {
   };
 
 
-})(jQuery);
+})(jQuery, window, document);
