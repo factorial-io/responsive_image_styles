@@ -81,7 +81,11 @@
 
     // add elem to viewportManager
     var parent_elem = this.parentElem;
-    Drupal.viewportSingleton.add( parent_elem, function() { this.compute(); }.bind(this), function(inViewport) { this.handleInViewport(inViewport); }.bind(this));
+    Drupal.viewportSingleton.add(
+      parent_elem,
+      function() { this.compute(); }.bind(this),
+      function(inViewport) { this.handleInViewport(inViewport); }.bind(this)
+    );
 
 
     // bind to resize
@@ -93,6 +97,9 @@
 
   ResponsiveImage.prototype.handleInViewport = function(elemInViewport) {
     this.setState({ isInViewport: elemInViewport});
+    if (elemInViewport) {
+      this.applyFocalPoint();
+    }
   };
 
   ResponsiveImage.prototype.handleResize = function() {

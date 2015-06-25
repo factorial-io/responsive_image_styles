@@ -76,7 +76,7 @@ function isMobileDevice() {
   ViewportSingleton.prototype.resetStateAndUpdate = function() {
     this.resetRecordedVisibiltyState();
     this.update();
-  }
+  };
 
   /**
    * reset the recorded visibility state
