@@ -36,6 +36,68 @@ function responsive_image_styles_page_build(&$page) {
   }
 }
 
+
+/**
+ * Implementation of hool_tcm_fixture_functions_alter().
+ */
+function responsive_image_styles_tcm_fixture_functions_alter(&$functions) {
+  $functions['responsive_image'] = 'responsive_image_styles_fixture_function';
+}
+
+/**
+ * Fixture function for a responsive-image.
+ */
+function responsive_image_styles_fixture_function($mode = 'adpative') {
+  $file_uri = 'public://responsive_image_example.jpg';
+  if (!file_exists($file_uri)) {
+    $source = drupal_get_path('module', 'responsive_image_styles') . '/example.jpg';
+    file_unmanaged_copy($source, $file_uri, FILE_EXISTS_REPLACE);
+  }
+  $file = new StdClass();
+  $file->uri = $file_uri;
+  $file->focal_point = '30,50';
+
+  return theme('responsive_image', array(
+    'file' => $file,
+    'style' => 'basic_' . $mode
+  ));
+}
+
+/**
+ * Implements hook_responsive_default_styles().
+ */
+function responsive_image_styles_responsive_default_styles() {
+  $styles = array(
+    'basic_cropped' => array(
+      'description' => 'Basic cropped responsive image style',
+      // Scale and crop.
+      'type' => 'min_scale',
+      // Just scale without cropping.
+      // 'type' => 'scale',
+      'cover' => TRUE,
+      'ls' => array(
+        'width' => 2560,
+        'height' => 1440,
+        'min_width' => 160,
+        'steps' => 160,
+      ),
+    ),
+    'basic_adaptive' => array(
+      'description' => 'Basic adaptive responsive image style',
+      // Scale and crop.
+      'type' => 'scale',
+      'cover' => FALSE,
+      'ls' => array(
+        'width' => 1200,
+        'min_width' => 160,
+      ),
+    ),
+  );
+
+  return $styles;
+}
+
+
 /**
  * Get all styles from hook implementations and cache them.
  */
@@ -236,7 +298,6 @@ function responsive_images_get_css_class_names() {
   return $css_class_names;
 }
 
-
 /**
  * Helper to get style name.
  */
@@ -272,7 +333,6 @@ function responsive_image_styles_as_options() {
   }
   return $preset_options;
 }
-
 
 /**
  * Field formatter options form.
@@ -352,7 +412,6 @@ function responsive_image_styles_image_effect_info() {
   return $effects;
 }
 
-
 /**
  * Implements scale_min_effect.
  */
@@ -378,7 +437,6 @@ function responsive_image_styles_scale_min_effect(&$image, $data) {
   return TRUE;
 }
 
-
 /**
  * Compute dimensions of min_scale-effect.
  */
@@ -397,7 +455,6 @@ function responsive_image_styles_scale_min_dimensions(array &$dimensions, array 
   }
 }
 
-
 /**
  * Get effect form.
  */
@@ -408,7 +465,6 @@ function responsive_image_styles_scale_min_form($data) {
 
   return $form;
 }
-
 
 /**
  * Method to calculate cropped image-size.
@@ -437,7 +493,6 @@ function _responsive_image_styles_compute_crop($file, $style_name, $style_data, 
 
   return $crop_data;
 }
-
 
 /**
  * Theme effect summary.
