@@ -1,0 +1,9 @@
+.focal-point-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.focal-point-wrapper img{
+  position: absolute;
+}
