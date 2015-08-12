@@ -28,7 +28,8 @@ function isMobileDevice() {
     this.options = {
       threshold: 2,
       disableOnMobile: true,
-      disabled: false
+      disabled: false,
+      debug: false
     };
 
     jQuery.extend(this.options, options);
@@ -51,6 +52,8 @@ function isMobileDevice() {
     $(document).on('viewportUpdate', function() {
       this.resetStateAndUpdate();
     }.bind(this));
+
+    this.setDebugEnabled(this.options.debug);
   };
 
   /**
@@ -215,6 +218,18 @@ function isMobileDevice() {
     this.options.disabled = true;
     this.update();
   };
+
+  ViewportSingleton.prototype.setDebugEnabled = function(debugEnabled) {
+    this.options.debug = debugEnabled;
+    if (this.options.debug) {
+      ViewportSingleton.prototype.log = function() { console.log.apply(console, arguments); };
+    }
+    else {
+      ViewportSingleton.prototype.log= function() {};
+    }
+  };
+
+
 
 
 })(jQuery, window, document);
