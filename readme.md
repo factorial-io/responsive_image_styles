@@ -36,5 +36,11 @@ If you only want to refresh a bunch of images, just trigger the “refresh”-ev
 ```
 
 
+## Enabling debug output
+
+just call 
+```
+  Drupal.viewportSingleton.setDebugEnabled(true);
+```
 
 
