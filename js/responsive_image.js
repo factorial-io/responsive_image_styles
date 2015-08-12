@@ -87,9 +87,14 @@
       function(inViewport) { this.handleInViewport(inViewport); }.bind(this)
     );
 
-
     // bind to resize
     $(window).resize(function() { this.handleResize(); }.bind(this));
+
+    // Allow others to recompute/apply focal point.
+    this.elem.on('refresh', function() {
+      this.compute();
+      this.applyFocalPoint();
+    }.bind(this));
 
     this.compute();
     this.applyFocalPoint();
