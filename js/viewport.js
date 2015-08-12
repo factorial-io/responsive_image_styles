@@ -61,7 +61,7 @@ function isMobileDevice() {
       elem.data('inExtendedViewport', true);
       elem.data('inViewport', true);
       loadFn();
-      inViewportFn(true);
+      this.elements.push({ elem: elem, inViewport: false, loadFn: loadFn, inViewportFn: inViewportFn});
     }
     else {
       this.elements.push({ elem: elem, inViewport: false, loadFn: loadFn, inViewportFn: inViewportFn});
