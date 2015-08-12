@@ -87,9 +87,14 @@
       function(inViewport) { this.handleInViewport(inViewport); }.bind(this)
     );
 
-
     // bind to resize
     $(window).resize(function() { this.handleResize(); }.bind(this));
+
+    // Allow others to recompute/apply focal point.
+    this.elem.on('refresh', function() {
+      this.compute();
+      this.applyFocalPoint();
+    }.bind(this));
 
     this.compute();
     this.applyFocalPoint();
@@ -235,7 +240,7 @@
         this.elem.attr('src', temp_image.attr('src'));
         this.imageWidth = temp_image[0].width;
         this.imageHeight = temp_image[0].height;
-        // console.log(this.imageWidth, this.imageHeight, temp_image);
+        Drupal.viewportSingleton.log("Image loaded", this.imageWidth, this.imageHeight, temp_image);
 
         $.event.trigger({
           type: "responsiveImageReady",
@@ -269,7 +274,6 @@
       // console.log('parent-container undefined');
       return;
     }
-
     if (!this.mayApplyFocalPoint || (this.imageWidth === undefined)) {
 
       if (this.options.full_width) {
@@ -295,7 +299,7 @@
     var img_w = this.imageWidth;
     var img_h = this.imageHeight;
 
-    // console.log("apply focal point", this.options.src, img_w, img_h, par_w, par_h);
+    Drupal.viewportSingleton.log("apply focal point", this.options.src, "image: " + img_w + "x" + img_h, "parent: " + par_w + "x" + par_h);
 
     var scale = Math.max(par_w / img_w, par_h / img_h);
     new_w = Math.ceil(scale * img_w);
@@ -304,11 +308,7 @@
     var dx = Math.round((par_w - new_w) * this.options.focalPoint.x / 100.0);
     var dy = Math.round((par_h - new_h) * this.options.focalPoint.y / 100.0);
 
-    // console.log('d', dx, dy,'new', new_w,new_h, 'scale', scale, 'img', img_w, img_h, 'parent', par_w, par_h, 'fp', this.options.focalPoint);
-
     this.elem.css({left: dx, top: dy, width: new_w, height: new_h});
-
-    // console.log(this.elem.css('left'), this.elem.css('top'));
   };
 
 })(jQuery);
