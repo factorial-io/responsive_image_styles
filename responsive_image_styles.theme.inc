@@ -139,5 +139,8 @@ function theme_responsive_image($vars) {
   if ($style_data['cover']) {
     $output = '<div class="' . $css_classes['WRAPPER'] . '">' . $output . '</div>';
   }
+  else if (!empty($css_classes['SIMPLE_IMAGE_WRAPPER'])) {
+    $output = '<div class="' . $css_classes['SIMPLE_IMAGE_WRAPPER'] . '">' . $output . '</div>';
+  }
   return $output;
 }

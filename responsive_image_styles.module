@@ -281,6 +281,7 @@ function responsive_images_get_css_class_names() {
 
     $default = array(
       'PROXY_SIZE_CONTAINER_SELECTOR' => FALSE,
+      'SIMPLE_IMAGE_WRAPPER' => FALSE,
       'WRAPPER' => 'focal-point-wrapper',
       'IMAGE' => 'responsive-image',
       'STATE' => array(
@@ -292,9 +293,9 @@ function responsive_images_get_css_class_names() {
       ),
     );
     $css_class_names = drupal_array_merge_deep($default, variable_get('responsive_images_css_class_names', array()));
-  }
 
-  drupal_alter('responsive_images_css_class_names', $css_class_names);
+    drupal_alter('responsive_images_css_class_names', $css_class_names);
+  }
 
   return $css_class_names;
 }
