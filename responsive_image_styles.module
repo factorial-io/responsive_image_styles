@@ -16,6 +16,7 @@ function responsive_image_styles_theme() {
         'style' => NULL,
         'file' => array(),
         'attributes' => array(),
+        'data_options' => array()
       ),
       'file' => 'responsive_image_styles.theme.inc',
     ),

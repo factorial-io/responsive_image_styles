@@ -124,6 +124,8 @@ function theme_responsive_image($vars) {
     $fp = focal_point_parse($file['focal_point']);
     $json_attributes['focalPoint'] = array('x' => $fp['x-offset'], 'y' => $fp['y-offset']);
   }
+
+  $json_attributes = drupal_array_merge_deep($vars['data_options'], $json_attributes);
   $attributes['data-responsive-image'] = json_encode($json_attributes);
 
   foreach (array('width', 'height') as $key) {
