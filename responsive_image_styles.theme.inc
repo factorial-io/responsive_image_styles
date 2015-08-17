@@ -84,6 +84,8 @@ function theme_responsive_image($vars) {
 
   foreach ($style_data['available_ratios'] as $r) {
     $json_attributes['ratios'][$r] = array();
+    $json_attributes['ratios'][$r]['interpolation'] = $style_data[$r]['interpolation'];
+
     if (isset($style_data[$r]['min_width'])) {
       $json_attributes['ratios'][$r]['minWidth'] = $style_data[$r]['min_width'];
       $json_attributes['ratios'][$r]['maxWidth'] = $style_data[$r]['width'];
