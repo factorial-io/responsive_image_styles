@@ -178,7 +178,7 @@
 
     //console.log(cs.width,cs.height,current, min, max, desired_ratio);
 
-    var new_src = this.getPresetUrl(desired_ratio, current * this.devicePixelRatio);
+    var new_src = this.getPresetUrl(desired_ratio, current * this.devicePixelRatio, cs);
     this.requestNewImage(new_src);
   };
 
@@ -252,7 +252,12 @@
     }
   };
 
-  ResponsiveImage.prototype.getPresetUrl = function(ratio, size) {
+  ResponsiveImage.prototype.getPresetUrl = function(ratio, size, viewport) {
+    var fn = this.viewport.getPresetFunc();
+    if (fn) {
+      return fn.apply(this, [ratio, size, viewport]);
+    }
+
     var path = Drupal.settings.basePath + Drupal.settings.responsive_image_styles.file_path + '/styles/' + this.options.style + '_' + ratio + '_' + this.options.type + '_' + size + '/public/';
     return this.options.src.replace('public://', path);
   };

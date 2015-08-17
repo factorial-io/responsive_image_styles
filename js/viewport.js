@@ -26,7 +26,8 @@ function isMobileDevice() {
       threshold: 2,
       disableOnMobile: true,
       disabled: false,
-      debug: false
+      debug: false,
+      getPresetFunc: false
     };
 
     jQuery.extend(this.options, options);
@@ -49,6 +50,22 @@ function isMobileDevice() {
     $(document).on('viewportUpdate', function() {
       this.resetStateAndUpdate();
     }.bind(this));
+
+    // Resolve getPresetFunc.
+    if (this.options.getPresetFunc && (typeof this.options.getPresetFunc !== 'function')) {
+      var o = window;
+      var keys = this.options.getPresetFunc.split('.');
+      $.each(keys, function(index, key) {
+        o = o ? o[key] : false;
+      });
+      if (o && typeof o === 'function') {
+        this.options.getPresetFunc = o;
+      }
+      else {
+        console.log('Cold not resolve getPresetFunc: ' + this.options.getPresetFunc);
+        this.options.getPresetFunc = false;
+      }
+    }
 
     this.setDebugEnabled(this.options.debug);
   };
@@ -234,6 +251,11 @@ function isMobileDevice() {
       ratio = window.devicePixelRatio >= 1.5 ? 2 : 1;
     }
     return ratio;
+  };
+
+
+  ViewportSingleton.prototype.getPresetFunc = function() {
+    return this.options.getPresetFunc;
   };
 
 
