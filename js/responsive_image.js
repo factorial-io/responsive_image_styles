@@ -21,12 +21,13 @@
    * responsive image class. Will load a new src on size changes
    */
   ResponsiveImage = function(elem, options) {
+    this.viewport = options.viewport;
     this.elem = elem;
     this.classNames = options.classNames;
     this.elem.addClass(this.classNames.IMAGE);
     this.options = options;
 
-    this.devicePixelRatio = this.getDevicePixelRatio();
+    this.devicePixelRatio = this.viewport.getDevicePixelRatio();
     this.mayApplyFocalPoint = this.elem.parent().hasClass(this.classNames.WRAPPER);
     this.firstImage = true;
     this.imageWidth = this.imageHeight = 1;
@@ -67,21 +68,13 @@
   };
 
 
-  ResponsiveImage.prototype.getDevicePixelRatio = function() {
-    var ratio = 1;
-
-    if (typeof window.devicePixelRatio !== 'undefined') {
-      ratio = window.devicePixelRatio >= 1.5 ? 2 : 1;
-    }
-    return ratio;
-  };
 
 
   ResponsiveImage.prototype.init = function() {
 
     // add elem to viewportManager
     var parent_elem = this.parentElem;
-    Drupal.viewportSingleton.add(
+    this.viewport.add(
       parent_elem,
       function() { this.compute(); }.bind(this),
       function(inViewport) { this.handleInViewport(inViewport); }.bind(this)
@@ -142,7 +135,7 @@
 
     var parent_elem = this.parentElem;
 
-    if (!Drupal.viewportSingleton.inExtendedViewport(parent_elem))
+    if (!this.viewport.inExtendedViewport(parent_elem))
       return;
 
     /*
@@ -240,7 +233,7 @@
         this.elem.attr('src', temp_image.attr('src'));
         this.imageWidth = temp_image[0].width;
         this.imageHeight = temp_image[0].height;
-        Drupal.viewportSingleton.log("Image loaded", this.imageWidth, this.imageHeight, temp_image);
+        this.viewport.log("Image loaded", this.imageWidth, this.imageHeight, temp_image);
 
         $.event.trigger({
           type: "responsiveImageReady",
@@ -299,7 +292,7 @@
     var img_w = this.imageWidth;
     var img_h = this.imageHeight;
 
-    Drupal.viewportSingleton.log("apply focal point", this.options.src, "image: " + img_w + "x" + img_h, "parent: " + par_w + "x" + par_h);
+    this.viewport.log("apply focal point", this.options.src, "image: " + img_w + "x" + img_h, "parent: " + par_w + "x" + par_h);
 
     var scale = Math.max(par_w / img_w, par_h / img_h);
     new_w = Math.ceil(scale * img_w);
