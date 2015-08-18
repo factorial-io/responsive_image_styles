@@ -17,6 +17,15 @@
     },
   };
 
+
+  Interpolators = {
+    linear: function(input) { return input; },
+    quadric: function(input) { return input * input; },
+    cubic: function(input) { return input * input *input; },
+    get: function(name) { return this[name] ? this[name] : this['linear']; }
+  };
+
+
   /**
    * responsive image class. Will load a new src on size changes
    */
@@ -26,6 +35,14 @@
     this.classNames = options.classNames;
     this.elem.addClass(this.classNames.IMAGE);
     this.options = options;
+
+    // Get Interpolator functions.
+    $.each(['ls', 'sq', 'po'], function(index, key) {
+      if (this.options.ratios[key]) {
+        var interpolation = this.options.ratios[key].interpolation || 'linear';
+        this.options.ratios[key].interpolation = Interpolators.get(interpolation);
+      }
+    }.bind(this));
 
     this.devicePixelRatio = this.viewport.getDevicePixelRatio();
     this.mayApplyFocalPoint = this.elem.parent().hasClass(this.classNames.WRAPPER);
@@ -159,7 +176,7 @@
     if(this.mayApplyFocalPoint) {
       var crop = this.options.ratios[desired_ratio].crop;
       var scale = Math.max(cs.width / crop.width, cs.height / crop.height);
-      cs.width = Math.round(scale * crop.width);
+      var interpolation = this.options.ratios[desired_ratio].interpolation;
       cs.height = Math.round(scale * crop.height);
     }
 
@@ -174,7 +191,8 @@
     var current = cs[size_key];
 
     current = Math.round((current-min) / this.options.steps) * this.options.steps + min;
-    current = Math.min(Math.max(current, min), max);
+    current = min + interpolation((current - min) / (max - min)) * (max - min);
+    current = Math.min(Math.max(Math.round(current / 10.0) * 10, min), max);
 
     //console.log(cs.width,cs.height,current, min, max, desired_ratio);
 
