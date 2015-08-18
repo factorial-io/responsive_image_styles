@@ -71,16 +71,14 @@ function responsive_image_styles_responsive_default_styles() {
   $styles = array(
     'basic_cropped' => array(
       'description' => 'Basic cropped responsive image style',
-      // Scale and crop.
       'type' => 'min_scale',
-      // Just scale without cropping.
-      // 'type' => 'scale',
       'cover' => TRUE,
       'ls' => array(
         'width' => 2560,
         'height' => 1440,
         'min_width' => 160,
         'steps' => 160,
+        'interpolation' => 'quadric',
       ),
     ),
     'basic_adaptive' => array(
@@ -89,6 +87,7 @@ function responsive_image_styles_responsive_default_styles() {
       'type' => 'scale',
       'cover' => FALSE,
       'ls' => array(
+        'interpolation' => 'cubic',
         'width' => 1200,
         'min_width' => 160,
       ),
@@ -122,12 +121,16 @@ function &responsive_image_styles_get_base_styles() {
         $val += 2 * $step_width;
         $cache[$ndx][$ratio]['noscript'] = min($max_val, $val);
         $cache[$ndx]['available_ratios'][] = $ratio;
+        if (empty($cache[$ndx][$ratio]['interpolation'])) {
+          $cache[$ndx][$ratio]['interpolation'] = 'linear';
+        }
       }
     }
   }
-
   return $cache;
 }
+
+
 
 /**
  * Add default styles.
@@ -210,6 +213,24 @@ function _responsive_image_styles_compute_width_and_height($size, &$width, &$hei
   }
 }
 
+
+/**
+ * Get interpolation function
+ */
+function _responsive_image_get_interpolation_fn($type) {
+  if ($type == 'quadric') {
+    $fn = function($input) { return $input * $input; };
+  }
+  elseif ($type == 'cubic') {
+    $fn = function($input) { return $input * $input * $input; };
+  }
+  else {
+    $fn = function($input) { return $input; };
+  }
+  return $fn;
+}
+
+
 /**
  * Iterate through all ratios and steps and call $callback.
  *
@@ -229,6 +250,7 @@ function responsive_image_styles_iterate_steps_and_call($callback) {
 
       $sizes = $item[$ratio];
       $size_key = isset($sizes['min_width']) ? 'width' : 'height';
+      $interpolate = _responsive_image_get_interpolation_fn($sizes['interpolation']);
 
       foreach (array(1.0, 2.0) as $scale) {
 
@@ -241,7 +263,10 @@ function responsive_image_styles_iterate_steps_and_call($callback) {
 
         while ($s < $max) {
 
-          $callback($style_name, $ratio, $s, $size_key, $item);
+          $scalar = ($s - $min) / ($max - $min);
+          $interpolated = $min + $interpolate($scalar) * ($max - $min);
+          $interpolated = round($interpolated / 10.0) * 10;
+          $callback($style_name, $ratio, $interpolated, $size_key, $item);
           $s += $scale * $step_width;
         }
         $callback($style_name, $ratio, $max, $size_key, $item);
