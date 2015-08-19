@@ -171,12 +171,12 @@
     //console.log(this.options);
 
     var desired_ratio = this.findBestMatchingRatio(cs.width, cs.height);
+    var interpolation = this.options.ratios[desired_ratio].interpolation;
 
     // we need to ajust the width and the height, as the image might be scaled
     if(this.mayApplyFocalPoint) {
       var crop = this.options.ratios[desired_ratio].crop;
       var scale = Math.max(cs.width / crop.width, cs.height / crop.height);
-      var interpolation = this.options.ratios[desired_ratio].interpolation;
       cs.height = Math.round(scale * crop.height);
     }
 
