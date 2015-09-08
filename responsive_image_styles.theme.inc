@@ -106,10 +106,8 @@ function theme_responsive_image($vars) {
       $json_attributes['ratios'][$r]['crop'] = $crop_data;
       // $json_attributes['ratios'][$r]['resize'] = focal_point_effect_resize_data($file['width'], $file['height'], $crop_data['width'], $crop_data['height']);
     }
-    else {
-      $json_attributes['full_width'] = $file['width'];
-      $json_attributes['full_height'] = $file['height'];
-    }
+    $json_attributes['full_width'] = $file['width'];
+    $json_attributes['full_height'] = $file['height'];
   }
 
   $attributes = array(
