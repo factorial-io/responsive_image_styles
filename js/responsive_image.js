@@ -49,6 +49,10 @@
     this.firstImage = true;
     this.imageWidth = this.imageHeight = 1;
     this.parentElem = this.getParentContainer();
+    if (!this.options['updateCallbacks']) {
+      this.options['updateCallbacks'] =  [];
+    }
+
     if (this.options) {
       this.init();
     }
@@ -70,6 +74,10 @@
     }
 
     return parent_elem;
+  };
+
+  ResponsiveImage.prototype.attachUpdateCallback = function(cb) {
+    this.options.updateCallbacks.push(cb);
   };
 
   ResponsiveImage.prototype.debounce = function(callback, wait) {
@@ -325,6 +333,11 @@
     var dy = Math.round((par_h - new_h) * this.options.focalPoint.y / 100.0);
 
     this.elem.css({left: dx, top: dy, width: new_w, height: new_h});
+
+    $.each(this.options.updateCallbacks, function(index, elem) {
+      elem();
+    });
+
   };
 
 })(jQuery);
