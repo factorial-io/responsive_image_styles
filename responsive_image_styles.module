@@ -307,7 +307,7 @@ function responsive_images_get_css_class_names() {
     $default = array(
       'PROXY_SIZE_CONTAINER_SELECTOR' => FALSE,
       'SIMPLE_IMAGE_WRAPPER' => FALSE,
-      'WRAPPER' => 'focal-point-wrapper',
+      'WRAPPER' => 'responsive-image-with-focal-point',
       'IMAGE' => 'responsive-image',
       'STATE' => array(
         'IS_LOADING' => 'responsive-image--loading-state',
