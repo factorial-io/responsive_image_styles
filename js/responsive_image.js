@@ -101,7 +101,7 @@
     var parent_elem = this.parentElem;
     this.viewport.add(
       parent_elem,
-      function() { this.compute(); }.bind(this),
+      function(inExtendedViewport) { if (inExtendedViewport) this.compute(); else this.forgetImage(); }.bind(this),
       function(inViewport) { this.handleInViewport(inViewport); }.bind(this)
     );
 
@@ -122,6 +122,14 @@
     this.setState({ isInViewport: elemInViewport});
     if (elemInViewport) {
       this.applyFocalPoint();
+    }
+  };
+
+  ResponsiveImage.prototype.forgetImage = function() {
+    if (this.viewport.options.forgetImageWhenOutside) {
+      this.elem.attr('src', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+      this.viewport.log("Image removed");
+      this.setState({isLoaded: false});
     }
   };
 
@@ -245,6 +253,27 @@
     });
   };
 
+
+  ResponsiveImage.prototype.handleImageLoaded = function(image) {
+    var $img = $(image);
+    this.elem.attr('src', $img.attr('src'));
+    this.imageWidth = $img[0].width;
+    this.imageHeight = $img[0].height;
+    this.viewport.log("Image loaded", this.imageWidth, this.imageHeight, $img);
+
+    $.event.trigger({
+      type: "responsiveImageReady",
+      image: this.elem,
+      first: this.firstImage
+    });
+
+    this.firstImage = false;
+    this.setState({isLoaded: true});
+    this.applyFocalPoint();
+    this.temp_image = null;
+  };
+
+
   ResponsiveImage.prototype.requestNewImage = function(new_src) {
     var current_src = this.elem.attr('src');
     if(new_src != current_src) {
@@ -255,25 +284,10 @@
         this.temp_image.removeAttr("src");
         this.temp_image = null;
       }
+      var that = this;
       var temp_image = $('<img>').load(function() {
-        this.elem.attr('src', temp_image.attr('src'));
-        this.imageWidth = temp_image[0].width;
-        this.imageHeight = temp_image[0].height;
-        this.viewport.log("Image loaded", this.imageWidth, this.imageHeight, temp_image);
-
-        $.event.trigger({
-          type: "responsiveImageReady",
-          image: this.elem,
-          first: this.firstImage
-        });
-
-        this.firstImage = false;
-        this.setState({isLoaded: true});
-        this.applyFocalPoint();
-
-
-
-      }.bind(this)).attr('src', new_src);
+        that.handleImageLoaded(this);
+      }).attr('src', new_src);
       this.temp_image = temp_image;
     }
   };
