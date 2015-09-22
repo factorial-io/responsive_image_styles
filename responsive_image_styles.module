@@ -343,7 +343,7 @@ function responsive_image_styles_field_formatter_info() {
       'label' => t('Responsive image'),
       'field types' => array('image', 'video_embed_field'),
       'settings'  => array(
-        'preset' => 'fullscreen',
+        'preset' => 'basic_adaptive',
       ),
     ),
   );
