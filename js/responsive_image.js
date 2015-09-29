@@ -261,6 +261,10 @@
     this.imageHeight = $img[0].height;
     this.viewport.log("Image loaded", this.imageWidth, this.imageHeight, $img);
 
+    this.setState({isLoaded: true});
+    this.applyFocalPoint();
+    this.temp_image = null;
+
     $.event.trigger({
       type: "responsiveImageReady",
       image: this.elem,
@@ -268,9 +272,6 @@
     });
 
     this.firstImage = false;
-    this.setState({isLoaded: true});
-    this.applyFocalPoint();
-    this.temp_image = null;
   };
 
 
