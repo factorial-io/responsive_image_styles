@@ -126,7 +126,7 @@
   };
 
   ResponsiveImage.prototype.forgetImage = function() {
-    if (this.viewport.options.forgetImageWhenOutside) {
+    if (this.viewport.options.forgetImageWhenOutside(this)) {
       this.elem.attr('src', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
       this.viewport.log("Image removed");
       this.setState({isLoaded: false});
@@ -201,18 +201,23 @@
     var range = this.options.ratios[desired_ratio];
 
 
+    var steps = this.options.steps * this.devicePixelRatio;
+    var min = this.devicePixelRatio * range['min'+range_key];
+    var max = this.devicePixelRatio * range['max'+range_key];
+    var current = this.devicePixelRatio * cs[size_key];
 
-    var min = range['min'+range_key];
-    var max = range['max'+range_key];
-    var current = cs[size_key];
-
-    current = Math.round((current-min) / this.options.steps) * this.options.steps + min;
+    if (this.viewport.options.allowUpScaling(this)) {
+      current = Math.round((current-min) / steps) * steps + min;
+    }
+    else {
+      current  = Math.ceil((current-min) / steps) * steps + min;
+    }
     current = min + interpolation((current - min) / (max - min)) * (max - min);
     current = Math.min(Math.max(Math.round(current / 10.0) * 10, min), max);
 
     //console.log(cs.width,cs.height,current, min, max, desired_ratio);
 
-    var new_src = this.getPresetUrl(desired_ratio, current * this.devicePixelRatio, cs);
+    var new_src = this.getPresetUrl(desired_ratio, current, cs);
     this.requestNewImage(new_src);
   };
 

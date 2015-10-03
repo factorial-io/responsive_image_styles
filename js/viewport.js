@@ -28,7 +28,8 @@ function isMobileDevice() {
       disabled: false,
       debug: false,
       getPresetFunc: false,
-      forgetImageWhenOutside: false
+      forgetImageWhenOutside: isMobileDevice,
+      allowUpScaling: isMobileDevice
     };
 
     jQuery.extend(this.options, options);
