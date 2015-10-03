@@ -37,7 +37,6 @@ function responsive_image_styles_page_build(&$page) {
   }
 }
 
-
 /**
  * Implementation of hool_tcm_fixture_functions_alter().
  */
@@ -97,7 +96,6 @@ function responsive_image_styles_responsive_default_styles() {
   return $styles;
 }
 
-
 /**
  * Get all styles from hook implementations and cache them.
  */
@@ -121,16 +119,19 @@ function &responsive_image_styles_get_base_styles() {
         $val += 2 * $step_width;
         $cache[$ndx][$ratio]['noscript'] = min($max_val, $val);
         $cache[$ndx]['available_ratios'][] = $ratio;
-        if (empty($cache[$ndx][$ratio]['interpolation'])) {
-          $cache[$ndx][$ratio]['interpolation'] = 'linear';
-        }
+
+        // TODO: Fix interpolations other than linear, and when working enable
+        // them again.
+        // For now discard any interpolation-methods other than linear.
+
+        // if (empty($cache[$ndx][$ratio]['interpolation'])) {
+        $cache[$ndx][$ratio]['interpolation'] = 'linear';
+        //}
       }
     }
   }
   return $cache;
 }
-
-
 
 /**
  * Add default styles.
@@ -213,23 +214,21 @@ function _responsive_image_styles_compute_width_and_height($size, &$width, &$hei
   }
 }
 
-
 /**
  * Get interpolation function
  */
 function _responsive_image_get_interpolation_fn($type) {
   if ($type == 'quadric') {
-    $fn = function($input) { return $input * $input; };
+    $func = function($input) { return $input * $input; };
   }
   elseif ($type == 'cubic') {
-    $fn = function($input) { return $input * $input * $input; };
+    $func = function($input) { return $input * $input * $input; };
   }
   else {
-    $fn = function($input) { return $input; };
+    $func = function($input) { return $input; };
   }
-  return $fn;
+  return $func;
 }
-
 
 /**
  * Iterate through all ratios and steps and call $callback.
@@ -419,7 +418,6 @@ function responsive_image_styles_field_formatter_view($entity_type, $entity, $fi
   }
   return $element;
 }
-
 
 /**
  * Implements hook_image_effects_info().
