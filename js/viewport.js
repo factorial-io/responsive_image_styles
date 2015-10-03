@@ -26,7 +26,9 @@ function isMobileDevice() {
       threshold: 2,
       disableOnMobile: true,
       disabled: false,
-      debug: false
+      debug: false,
+      getPresetFunc: false,
+      forgetImageWhenOutside: false
     };
 
     jQuery.extend(this.options, options);
@@ -50,6 +52,22 @@ function isMobileDevice() {
       this.resetStateAndUpdate();
     }.bind(this));
 
+    // Resolve getPresetFunc.
+    if (this.options.getPresetFunc && (typeof this.options.getPresetFunc !== 'function')) {
+      var o = window;
+      var keys = this.options.getPresetFunc.split('.');
+      $.each(keys, function(index, key) {
+        o = o ? o[key] : false;
+      });
+      if (o && typeof o === 'function') {
+        this.options.getPresetFunc = o;
+      }
+      else {
+        console.log('Cold not resolve getPresetFunc: ' + this.options.getPresetFunc);
+        this.options.getPresetFunc = false;
+      }
+    }
+
     this.setDebugEnabled(this.options.debug);
   };
 
@@ -60,7 +78,7 @@ function isMobileDevice() {
     if(this.options.disableOnMobile && isMobileDevice() ) {
       elem.data('inExtendedViewport', true);
       elem.data('inViewport', true);
-      loadFn();
+      loadFn(true);
       this.elements.push({ elem: elem, inViewport: false, loadFn: loadFn, inViewportFn: inViewportFn});
     }
     else {
@@ -141,6 +159,9 @@ function isMobileDevice() {
 
       if (!inExtendedViewport) {
         elem.data('inExtendedViewport', false);
+        if (data.inExtendedViewport) {
+          data.loadFn(false);
+        }
         data.inExtendedViewport = false;
       } else {
 
@@ -148,7 +169,7 @@ function isMobileDevice() {
         elem.data('inExtendedViewport', true);
         if (!data.inExtendedViewport) {
           // console.log('new in extended viewport, calling fn');
-          data.loadFn();
+          data.loadFn(true);
         }
         data.inExtendedViewport = true;
       }
@@ -234,6 +255,11 @@ function isMobileDevice() {
       ratio = window.devicePixelRatio >= 1.5 ? 2 : 1;
     }
     return ratio;
+  };
+
+
+  ViewportSingleton.prototype.getPresetFunc = function() {
+    return this.options.getPresetFunc;
   };
 
 

@@ -84,6 +84,8 @@ function theme_responsive_image($vars) {
 
   foreach ($style_data['available_ratios'] as $r) {
     $json_attributes['ratios'][$r] = array();
+    $json_attributes['ratios'][$r]['interpolation'] = $style_data[$r]['interpolation'];
+
     if (isset($style_data[$r]['min_width'])) {
       $json_attributes['ratios'][$r]['minWidth'] = $style_data[$r]['min_width'];
       $json_attributes['ratios'][$r]['maxWidth'] = $style_data[$r]['width'];
@@ -104,10 +106,8 @@ function theme_responsive_image($vars) {
       $json_attributes['ratios'][$r]['crop'] = $crop_data;
       // $json_attributes['ratios'][$r]['resize'] = focal_point_effect_resize_data($file['width'], $file['height'], $crop_data['width'], $crop_data['height']);
     }
-    else {
-      $json_attributes['full_width'] = $file['width'];
-      $json_attributes['full_height'] = $file['height'];
-    }
+    $json_attributes['full_width'] = $file['width'];
+    $json_attributes['full_height'] = $file['height'];
   }
 
   $attributes = array(
@@ -124,6 +124,8 @@ function theme_responsive_image($vars) {
     $fp = focal_point_parse($file['focal_point']);
     $json_attributes['focalPoint'] = array('x' => $fp['x-offset'], 'y' => $fp['y-offset']);
   }
+
+  $json_attributes = drupal_array_merge_deep($vars['data_options'], $json_attributes);
   $attributes['data-responsive-image'] = json_encode($json_attributes);
 
   foreach (array('width', 'height') as $key) {
@@ -136,6 +138,9 @@ function theme_responsive_image($vars) {
   $output .= '<img ' . drupal_attributes($attributes) . '/>';
   if ($style_data['cover']) {
     $output = '<div class="' . $css_classes['WRAPPER'] . '">' . $output . '</div>';
+  }
+  else if (!empty($css_classes['SIMPLE_IMAGE_WRAPPER'])) {
+    $output = '<div class="' . $css_classes['SIMPLE_IMAGE_WRAPPER'] . '">' . $output . '</div>';
   }
   return $output;
 }
