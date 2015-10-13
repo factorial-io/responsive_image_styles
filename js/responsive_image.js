@@ -270,7 +270,7 @@
     this.applyFocalPoint();
     this.temp_image = null;
 
-    $.event.trigger({
+    this.elem.trigger({
       type: "responsiveImageReady",
       image: this.elem,
       first: this.firstImage

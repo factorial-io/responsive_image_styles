@@ -28,7 +28,7 @@ function isMobileDevice() {
       disabled: false,
       debug: false,
       getPresetFunc: false,
-      forgetImageWhenOutside: isMobileDevice,
+      forgetImageWhenOutside: function() { return false; },
       allowUpScaling: isMobileDevice
     };
 
