@@ -206,14 +206,16 @@
     var max = this.devicePixelRatio * range['max'+range_key];
     var current = this.devicePixelRatio * cs[size_key];
 
-    if (this.viewport.options.allowUpScaling(this)) {
-      current = Math.round((current-min) / steps) * steps + min;
+    if (min != max) {
+      if (this.viewport.options.allowUpScaling(this)) {
+        current = Math.round((current-min) / steps) * steps + min;
+      }
+      else {
+        current  = Math.ceil((current-min) / steps) * steps + min;
+      }
+      current = min + interpolation((current - min) / (max - min)) * (max - min);
+      current = Math.min(Math.max(Math.round(current / 10.0) * 10, min), max);
     }
-    else {
-      current  = Math.ceil((current-min) / steps) * steps + min;
-    }
-    current = min + interpolation((current - min) / (max - min)) * (max - min);
-    current = Math.min(Math.max(Math.round(current / 10.0) * 10, min), max);
 
     //console.log(cs.width,cs.height,current, min, max, desired_ratio);
 
