@@ -20,22 +20,42 @@ function isMobileDevice() {
    * ViewportSingleton, checks a list of elements if they are in the viewport or not
    * will call a callback, if an element enters the viewport or leave it.
    */
-  //var ViewportSingleton = function(options) {
   ViewportSingleton = function(options) {
     this.options = {
       threshold: 2,
       disableOnMobile: true,
       disabled: false,
       debug: false,
-      getPresetFunc: false
+      getPresetFunc: false,
+      alterSrcFunc: false
     };
 
-    jQuery.extend(this.options, options);
+    $.extend(this.options, options);
 
     this.elements = [];
     this.elementsInViewport = [];
     this.init();
   };
+
+
+
+  ViewportSingleton.prototype.resolveFunc = function(funcname) {
+    if (this.options[funcname] && (typeof this.options[funcname] !== 'function')) {
+      var o = window;
+      var keys = this.options[funcname].split('.');
+      $.each(keys, function(index, key) {
+        o = o ? o[key] : false;
+      });
+      if (o && typeof o === 'function') {
+        this.options[funcname] = o;
+      }
+      else {
+        console.log('Cold not resolve ' + funcname + ': ' + this.options[funcname]);
+        this.options[funcname] = false;
+      }
+    }
+
+  }
 
 
   /**
@@ -51,21 +71,10 @@ function isMobileDevice() {
       this.resetStateAndUpdate();
     }.bind(this));
 
-    // Resolve getPresetFunc.
-    if (this.options.getPresetFunc && (typeof this.options.getPresetFunc !== 'function')) {
-      var o = window;
-      var keys = this.options.getPresetFunc.split('.');
-      $.each(keys, function(index, key) {
-        o = o ? o[key] : false;
-      });
-      if (o && typeof o === 'function') {
-        this.options.getPresetFunc = o;
-      }
-      else {
-        console.log('Cold not resolve getPresetFunc: ' + this.options.getPresetFunc);
-        this.options.getPresetFunc = false;
-      }
-    }
+    this.resolveFunc('getPresetFunc');
+    this.resolveFunc('alterSrcFunc');
+
+
 
     this.setDebugEnabled(this.options.debug);
   };
@@ -257,6 +266,11 @@ function isMobileDevice() {
   ViewportSingleton.prototype.getPresetFunc = function() {
     return this.options.getPresetFunc;
   };
+
+  ViewportSingleton.prototype.alterSrc = function(src) {
+    return this.options.alterSrcFunc ? this.options.alterSrcFunc(src) : src;
+  };
+
 
 
 

@@ -35,6 +35,7 @@
     this.classNames = options.classNames;
     this.elem.addClass(this.classNames.IMAGE);
     this.options = options;
+    this.currentSrc = false;
 
     // Get Interpolator functions.
     $.each(['ls', 'sq', 'po'], function(index, key) {
@@ -237,9 +238,10 @@
     });
   };
 
-  ResponsiveImage.prototype.requestNewImage = function(new_src) {
-    var current_src = this.elem.attr('src');
-    if(new_src != current_src) {
+  ResponsiveImage.prototype.requestNewImage = function(newSrc) {
+    if(newSrc != this.currentSrc) {
+      this.currentSrc = newSrc;
+
       this.setState({isLoading: true});
 
       if(this.temp_image) {
@@ -265,7 +267,7 @@
 
 
 
-      }.bind(this)).attr('src', new_src);
+      }.bind(this)).attr('src', this.viewport.alterSrc(newSrc));
       this.temp_image = temp_image;
     }
   };
