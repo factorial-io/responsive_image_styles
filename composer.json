@@ -1,0 +1,6 @@
+{
+    "name": "factorial-io/responsive_image_styles",
+    "description": "Responsive image styles module.",
+    "type": "drupal-module",
+    "license": "GPL-2.0+"
+}

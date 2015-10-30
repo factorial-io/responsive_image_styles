@@ -27,7 +27,9 @@ function isMobileDevice() {
       disabled: false,
       debug: false,
       getPresetFunc: false,
-      alterSrcFunc: false
+      alterSrcFunc: false,
+      forgetImageWhenOutside: function() { return false; },
+      allowUpScaling: isMobileDevice
     };
 
     $.extend(this.options, options);
@@ -86,7 +88,7 @@ function isMobileDevice() {
     if(this.options.disableOnMobile && isMobileDevice() ) {
       elem.data('inExtendedViewport', true);
       elem.data('inViewport', true);
-      loadFn();
+      loadFn(true);
       this.elements.push({ elem: elem, inViewport: false, loadFn: loadFn, inViewportFn: inViewportFn});
     }
     else {
@@ -167,6 +169,9 @@ function isMobileDevice() {
 
       if (!inExtendedViewport) {
         elem.data('inExtendedViewport', false);
+        if (data.inExtendedViewport) {
+          data.loadFn(false);
+        }
         data.inExtendedViewport = false;
       } else {
 
@@ -174,7 +179,7 @@ function isMobileDevice() {
         elem.data('inExtendedViewport', true);
         if (!data.inExtendedViewport) {
           // console.log('new in extended viewport, calling fn');
-          data.loadFn();
+          data.loadFn(true);
         }
         data.inExtendedViewport = true;
       }

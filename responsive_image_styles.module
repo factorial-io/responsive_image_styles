@@ -37,7 +37,6 @@ function responsive_image_styles_page_build(&$page) {
   }
 }
 
-
 /**
  * Implementation of hool_tcm_fixture_functions_alter().
  */
@@ -49,9 +48,10 @@ function responsive_image_styles_tcm_fixture_functions_alter(&$functions) {
  * Fixture function for a responsive-image.
  */
 function responsive_image_styles_fixture_function($mode = 'adpative') {
-  $file_uri = 'public://responsive_image_example.jpg';
+  $ext = '_' . rand(1,3). '.jpg';
+  $file_uri = 'public://responsive_image_example' . $ext;
   if (!file_exists($file_uri)) {
-    $source = drupal_get_path('module', 'responsive_image_styles') . '/example.jpg';
+    $source = drupal_get_path('module', 'responsive_image_styles') . '/example' . $ext;
     file_unmanaged_copy($source, $file_uri, FILE_EXISTS_REPLACE);
   }
   $file = new StdClass();
@@ -97,7 +97,6 @@ function responsive_image_styles_responsive_default_styles() {
   return $styles;
 }
 
-
 /**
  * Get all styles from hook implementations and cache them.
  */
@@ -121,16 +120,19 @@ function &responsive_image_styles_get_base_styles() {
         $val += 2 * $step_width;
         $cache[$ndx][$ratio]['noscript'] = min($max_val, $val);
         $cache[$ndx]['available_ratios'][] = $ratio;
-        if (empty($cache[$ndx][$ratio]['interpolation'])) {
-          $cache[$ndx][$ratio]['interpolation'] = 'linear';
-        }
+
+        // TODO: Fix interpolations other than linear, and when working enable
+        // them again.
+        // For now discard any interpolation-methods other than linear.
+
+        // if (empty($cache[$ndx][$ratio]['interpolation'])) {
+        $cache[$ndx][$ratio]['interpolation'] = 'linear';
+        //}
       }
     }
   }
   return $cache;
 }
-
-
 
 /**
  * Add default styles.
@@ -213,23 +215,21 @@ function _responsive_image_styles_compute_width_and_height($size, &$width, &$hei
   }
 }
 
-
 /**
  * Get interpolation function
  */
 function _responsive_image_get_interpolation_fn($type) {
   if ($type == 'quadric') {
-    $fn = function($input) { return $input * $input; };
+    $func = function($input) { return $input * $input; };
   }
   elseif ($type == 'cubic') {
-    $fn = function($input) { return $input * $input * $input; };
+    $func = function($input) { return $input * $input * $input; };
   }
   else {
-    $fn = function($input) { return $input; };
+    $func = function($input) { return $input; };
   }
-  return $fn;
+  return $func;
 }
-
 
 /**
  * Iterate through all ratios and steps and call $callback.
@@ -307,7 +307,7 @@ function responsive_images_get_css_class_names() {
     $default = array(
       'PROXY_SIZE_CONTAINER_SELECTOR' => FALSE,
       'SIMPLE_IMAGE_WRAPPER' => FALSE,
-      'WRAPPER' => 'focal-point-wrapper',
+      'WRAPPER' => 'responsive-image-with-focal-point',
       'IMAGE' => 'responsive-image',
       'STATE' => array(
         'IS_LOADING' => 'responsive-image--loading-state',
@@ -343,7 +343,7 @@ function responsive_image_styles_field_formatter_info() {
       'label' => t('Responsive image'),
       'field types' => array('image', 'video_embed_field'),
       'settings'  => array(
-        'preset' => 'fullscreen',
+        'preset' => 'basic_adaptive',
       ),
     ),
   );
@@ -419,7 +419,6 @@ function responsive_image_styles_field_formatter_view($entity_type, $entity, $fi
   }
   return $element;
 }
-
 
 /**
  * Implements hook_image_effects_info().
