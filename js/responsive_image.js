@@ -296,7 +296,7 @@
       var that = this;
       var temp_image = $('<img>').load(function() {
         that.handleImageLoaded(this);
-      }).attr('src', new_src);
+      }).attr('src', this.viewport.alterSrc(new_src));
       this.temp_image = temp_image;
     }
   };
