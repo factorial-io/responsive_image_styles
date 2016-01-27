@@ -20,21 +20,44 @@ function isMobileDevice() {
    * ViewportSingleton, checks a list of elements if they are in the viewport or not
    * will call a callback, if an element enters the viewport or leave it.
    */
-  //var ViewportSingleton = function(options) {
   ViewportSingleton = function(options) {
     this.options = {
       threshold: 2,
       disableOnMobile: true,
       disabled: false,
-      debug: false
+      debug: false,
+      getPresetFunc: false,
+      alterSrcFunc: false,
+      forgetImageWhenOutside: function() { return false; },
+      allowUpScaling: isMobileDevice
     };
 
-    jQuery.extend(this.options, options);
+    $.extend(this.options, options);
 
     this.elements = [];
     this.elementsInViewport = [];
     this.init();
   };
+
+
+
+  ViewportSingleton.prototype.resolveFunc = function(funcname) {
+    if (this.options[funcname] && (typeof this.options[funcname] !== 'function')) {
+      var o = window;
+      var keys = this.options[funcname].split('.');
+      $.each(keys, function(index, key) {
+        o = o ? o[key] : false;
+      });
+      if (o && typeof o === 'function') {
+        this.options[funcname] = o;
+      }
+      else {
+        console.log('Cold not resolve ' + funcname + ': ' + this.options[funcname]);
+        this.options[funcname] = false;
+      }
+    }
+
+  }
 
 
   /**
@@ -50,6 +73,11 @@ function isMobileDevice() {
       this.resetStateAndUpdate();
     }.bind(this));
 
+    this.resolveFunc('getPresetFunc');
+    this.resolveFunc('alterSrcFunc');
+
+
+
     this.setDebugEnabled(this.options.debug);
   };
 
@@ -60,7 +88,7 @@ function isMobileDevice() {
     if(this.options.disableOnMobile && isMobileDevice() ) {
       elem.data('inExtendedViewport', true);
       elem.data('inViewport', true);
-      loadFn();
+      loadFn(true);
       this.elements.push({ elem: elem, inViewport: false, loadFn: loadFn, inViewportFn: inViewportFn});
     }
     else {
@@ -141,6 +169,9 @@ function isMobileDevice() {
 
       if (!inExtendedViewport) {
         elem.data('inExtendedViewport', false);
+        if (data.inExtendedViewport) {
+          data.loadFn(false);
+        }
         data.inExtendedViewport = false;
       } else {
 
@@ -148,7 +179,7 @@ function isMobileDevice() {
         elem.data('inExtendedViewport', true);
         if (!data.inExtendedViewport) {
           // console.log('new in extended viewport, calling fn');
-          data.loadFn();
+          data.loadFn(true);
         }
         data.inExtendedViewport = true;
       }
@@ -235,6 +266,16 @@ function isMobileDevice() {
     }
     return ratio;
   };
+
+
+  ViewportSingleton.prototype.getPresetFunc = function() {
+    return this.options.getPresetFunc;
+  };
+
+  ViewportSingleton.prototype.alterSrc = function(src) {
+    return this.options.alterSrcFunc ? this.options.alterSrcFunc(src) : src;
+  };
+
 
 
 

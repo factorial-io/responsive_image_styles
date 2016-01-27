@@ -17,6 +17,15 @@
     },
   };
 
+
+  Interpolators = {
+    linear: function(input) { return input; },
+    quadric: function(input) { return input * input; },
+    cubic: function(input) { return input * input *input; },
+    get: function(name) { return this[name] ? this[name] : this['linear']; }
+  };
+
+
   /**
    * responsive image class. Will load a new src on size changes
    */
@@ -26,12 +35,25 @@
     this.classNames = options.classNames;
     this.elem.addClass(this.classNames.IMAGE);
     this.options = options;
+    this.currentSrc = false;
+
+    // Get Interpolator functions.
+    $.each(['ls', 'sq', 'po'], function(index, key) {
+      if (this.options.ratios[key]) {
+        var interpolation = this.options.ratios[key].interpolation || 'linear';
+        this.options.ratios[key].interpolation = Interpolators.get(interpolation);
+      }
+    }.bind(this));
 
     this.devicePixelRatio = this.viewport.getDevicePixelRatio();
     this.mayApplyFocalPoint = this.elem.parent().hasClass(this.classNames.WRAPPER);
     this.firstImage = true;
     this.imageWidth = this.imageHeight = 1;
     this.parentElem = this.getParentContainer();
+    if (!this.options['updateCallbacks']) {
+      this.options['updateCallbacks'] =  [];
+    }
+
     if (this.options) {
       this.init();
     }
@@ -55,6 +77,10 @@
     return parent_elem;
   };
 
+  ResponsiveImage.prototype.attachUpdateCallback = function(cb) {
+    this.options.updateCallbacks.push(cb);
+  };
+
   ResponsiveImage.prototype.debounce = function(callback, wait) {
     var timeout, result;
     var context = this;
@@ -76,7 +102,7 @@
     var parent_elem = this.parentElem;
     this.viewport.add(
       parent_elem,
-      function() { this.compute(); }.bind(this),
+      function(inExtendedViewport) { if (inExtendedViewport) this.compute(); else this.forgetImage(); }.bind(this),
       function(inViewport) { this.handleInViewport(inViewport); }.bind(this)
     );
 
@@ -97,6 +123,14 @@
     this.setState({ isInViewport: elemInViewport});
     if (elemInViewport) {
       this.applyFocalPoint();
+    }
+  };
+
+  ResponsiveImage.prototype.forgetImage = function() {
+    if (this.viewport.options.forgetImageWhenOutside(this)) {
+      this.elem.attr('src', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+      this.viewport.log("Image removed");
+      this.setState({isLoaded: false});
     }
   };
 
@@ -154,12 +188,12 @@
     //console.log(this.options);
 
     var desired_ratio = this.findBestMatchingRatio(cs.width, cs.height);
+    var interpolation = this.options.ratios[desired_ratio].interpolation;
 
     // we need to ajust the width and the height, as the image might be scaled
     if(this.mayApplyFocalPoint) {
       var crop = this.options.ratios[desired_ratio].crop;
       var scale = Math.max(cs.width / crop.width, cs.height / crop.height);
-      cs.width = Math.round(scale * crop.width);
       cs.height = Math.round(scale * crop.height);
     }
 
@@ -168,17 +202,25 @@
     var range = this.options.ratios[desired_ratio];
 
 
+    var steps = this.options.steps * this.devicePixelRatio;
+    var min = this.devicePixelRatio * range['min'+range_key];
+    var max = this.devicePixelRatio * range['max'+range_key];
+    var current = this.devicePixelRatio * cs[size_key];
 
-    var min = range['min'+range_key];
-    var max = range['max'+range_key];
-    var current = cs[size_key];
-
-    current = Math.round((current-min) / this.options.steps) * this.options.steps + min;
-    current = Math.min(Math.max(current, min), max);
+    if (min != max) {
+      if (this.viewport.options.allowUpScaling(this)) {
+        current = Math.round((current-min) / steps) * steps + min;
+      }
+      else {
+        current  = Math.ceil((current-min) / steps) * steps + min;
+      }
+      current = min + interpolation((current - min) / (max - min)) * (max - min);
+    }
+    current = Math.min(Math.max(Math.round(current / 10.0) * 10, min), max);
 
     //console.log(cs.width,cs.height,current, min, max, desired_ratio);
 
-    var new_src = this.getPresetUrl(desired_ratio, current * this.devicePixelRatio);
+    var new_src = this.getPresetUrl(desired_ratio, current, cs);
     this.requestNewImage(new_src);
   };
 
@@ -219,9 +261,31 @@
     });
   };
 
+
+  ResponsiveImage.prototype.handleImageLoaded = function(image) {
+    var $img = $(image);
+    this.elem.attr('src', $img.attr('src'));
+    this.imageWidth = $img[0].width;
+    this.imageHeight = $img[0].height;
+    this.viewport.log("Image loaded", this.imageWidth, this.imageHeight, $img);
+
+    this.setState({isLoaded: true});
+    this.applyFocalPoint();
+    this.temp_image = null;
+
+    this.elem.trigger({
+      type: "responsiveImageReady",
+      image: this.elem,
+      first: this.firstImage
+    });
+
+    this.firstImage = false;
+  };
+
+
   ResponsiveImage.prototype.requestNewImage = function(new_src) {
-    var current_src = this.elem.attr('src');
-    if(new_src != current_src) {
+    if(new_src != this.currentSrc) {
+      this.currentSrc = new_src;
       this.setState({isLoading: true});
 
       if(this.temp_image) {
@@ -229,30 +293,20 @@
         this.temp_image.removeAttr("src");
         this.temp_image = null;
       }
+      var that = this;
       var temp_image = $('<img>').load(function() {
-        this.elem.attr('src', temp_image.attr('src'));
-        this.imageWidth = temp_image[0].width;
-        this.imageHeight = temp_image[0].height;
-        this.viewport.log("Image loaded", this.imageWidth, this.imageHeight, temp_image);
-
-        $.event.trigger({
-          type: "responsiveImageReady",
-          image: this.elem,
-          first: this.firstImage
-        });
-
-        this.firstImage = false;
-        this.setState({isLoaded: true});
-        this.applyFocalPoint();
-
-
-
-      }.bind(this)).attr('src', new_src);
+        that.handleImageLoaded(this);
+      }).attr('src', this.viewport.alterSrc(new_src));
       this.temp_image = temp_image;
     }
   };
 
-  ResponsiveImage.prototype.getPresetUrl = function(ratio, size) {
+  ResponsiveImage.prototype.getPresetUrl = function(ratio, size, viewport) {
+    var fn = this.viewport.getPresetFunc();
+    if (fn) {
+      return fn.apply(this, [ratio, size, viewport]);
+    }
+
     var path = Drupal.settings.basePath + Drupal.settings.responsive_image_styles.file_path + '/styles/' + this.options.style + '_' + ratio + '_' + this.options.type + '_' + size + '/public/';
     return this.options.src.replace('public://', path);
   };
@@ -302,6 +356,11 @@
     var dy = Math.round((par_h - new_h) * this.options.focalPoint.y / 100.0);
 
     this.elem.css({left: dx, top: dy, width: new_w, height: new_h});
+
+    $.each(this.options.updateCallbacks, function(index, elem) {
+      elem();
+    });
+
   };
 
 })(jQuery);
