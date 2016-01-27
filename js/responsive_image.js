@@ -215,8 +215,8 @@
         current  = Math.ceil((current-min) / steps) * steps + min;
       }
       current = min + interpolation((current - min) / (max - min)) * (max - min);
-      current = Math.min(Math.max(Math.round(current / 10.0) * 10, min), max);
     }
+    current = Math.min(Math.max(Math.round(current / 10.0) * 10, min), max);
 
     //console.log(cs.width,cs.height,current, min, max, desired_ratio);
 
