@@ -326,11 +326,11 @@
       if (this.options.full_width) {
         if(this.firstImage) {
           var ar = this.options.full_height / this.options.full_width;
-          new_w = par_w;
-          new_h = par_w * ar;
+          new_w = Math.min(this.options.full_width, par_w);
+          new_h = new_w * ar;
           /*if (new_h > par_h) {
             new_h = par_h;
-            new_w = par_h * this.options.aspectRatio;
+            new_w = par_h * this.options.aspectRatio; 
           }*/
           this.elem.css({width: Math.round(new_w), height: Math.round(new_h)});
         }
