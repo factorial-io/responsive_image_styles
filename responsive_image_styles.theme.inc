@@ -54,7 +54,7 @@ function theme_responsive_image($vars) {
 
   $noscript_attrs = drupal_array_merge_deep(array(
     'class' => array(
-      $css_classes['IMAGE']
+      $css_classes['IMAGE'],
     ),
   ),
     $vars['attributes']
@@ -71,7 +71,8 @@ function theme_responsive_image($vars) {
       array(
         'attributes' => $noscript_attrs,
         'path' => $file['uri'],
-        'style_name' => $noscript_style))
+        'style_name' => $noscript_style,
+      ))
     ) . '</noscript>';
 
   $json_attributes = array(
@@ -102,7 +103,6 @@ function theme_responsive_image($vars) {
       }
       $crop_data = _responsive_image_styles_compute_crop($file, $style_data['type'], $style_data[$r], $focal_point);
 
-
       $json_attributes['ratios'][$r]['crop'] = $crop_data;
       // $json_attributes['ratios'][$r]['resize'] = focal_point_effect_resize_data($file['width'], $file['height'], $crop_data['width'], $crop_data['height']);
     }
@@ -110,10 +110,19 @@ function theme_responsive_image($vars) {
     $json_attributes['full_height'] = $file['height'];
   }
 
+  $classes = array(
+    $css_classes['IMAGE'],
+    $css_classes['IMAGE'] . '--' . $style,
+  );
+  if (!$style_data['cover']) {
+    $classes[] = $css_classes['IMAGE'] . '--' . ($file['width'] > $file['height'] ? 'landscape' : 'portrait'
+    );
+  }
+
   $attributes = array(
     'alt' => isset($file['alt']) ? $file['alt'] : '',
     'src' => 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-    'class'=> $css_classes['IMAGE'],
+    'class' => implode(' ', $classes),
   );
 
   if (isset($file['title'])) {
@@ -139,7 +148,7 @@ function theme_responsive_image($vars) {
   if ($style_data['cover']) {
     $output = '<div class="' . $css_classes['WRAPPER'] . '">' . $output . '</div>';
   }
-  else if (!empty($css_classes['SIMPLE_IMAGE_WRAPPER'])) {
+  elseif (!empty($css_classes['SIMPLE_IMAGE_WRAPPER'])) {
     $output = '<div class="' . $css_classes['SIMPLE_IMAGE_WRAPPER'] . '">' . $output . '</div>';
   }
   return $output;
