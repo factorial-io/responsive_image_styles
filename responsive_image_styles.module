@@ -265,7 +265,7 @@ function responsive_image_styles_iterate_steps_and_call($callback) {
 
           $scalar = ($s - $min) / ($max - $min);
           $interpolated = $min + $interpolate($scalar) * ($max - $min);
-          $interpolated = round($interpolated / 10.0) * 10;
+          $interpolated = min($max, max($min, round($interpolated / 10.0) * 10));
           $callback($style_name, $ratio, $interpolated, $size_key, $item);
           $s += $scale * $step_width;
         }
