@@ -69,11 +69,9 @@
     if(selector) {
       selectors.push(this.classNames.PROXY_SIZE_CONTAINER_SELECTOR);
     }
-    if (selectors.length > 0) {
-      var container = this.elem.closest(selectors.join());
-      if(container.length) {
-        parent_elem = container;
-      }
+    var container = this.elem.closest(selectors.join());
+    if(container.length) {
+      parent_elem = container;
     }
 
     return parent_elem;

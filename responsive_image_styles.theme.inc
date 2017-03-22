@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Include for hook_theme.
@@ -104,7 +105,6 @@ function theme_responsive_image($vars) {
       $crop_data = _responsive_image_styles_compute_crop($file, $style_data['type'], $style_data[$r], $focal_point);
 
       $json_attributes['ratios'][$r]['crop'] = $crop_data;
-      // $json_attributes['ratios'][$r]['resize'] = focal_point_effect_resize_data($file['width'], $file['height'], $crop_data['width'], $crop_data['height']);
     }
     $json_attributes['full_width'] = $file['width'];
     $json_attributes['full_height'] = $file['height'];
